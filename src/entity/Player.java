@@ -24,20 +24,32 @@ public class Player extends Entity {
 
     public void update() {
 
+        // Keep the entire player square inside the game panel.
+        int maxX = gp.getWidth() - gp.tileSize;
+        int maxY = gp.getHeight() - gp.tileSize;
+
         if (keyH.upPressed) {
-            y -= gp.tileSize;
+            if (y - gp.tileSize >= 0) {
+                y -= gp.tileSize;
+            }
             keyH.upPressed = false;
         }
         if (keyH.downPressed) {
-            y += gp.tileSize;
+            if (y + gp.tileSize <= maxY) {
+                y += gp.tileSize;
+            }
             keyH.downPressed = false;
         }
         if (keyH.rightPressed) {
-            x += gp.tileSize;
+            if (x + gp.tileSize <= maxX) {
+                x += gp.tileSize;
+            }
             keyH.rightPressed = false;
         }
         if (keyH.leftPressed) {
-            x -= gp.tileSize;
+            if (x - gp.tileSize >= 0) {
+                x -= gp.tileSize;
+            }
             keyH.leftPressed = false;
         }
     }
