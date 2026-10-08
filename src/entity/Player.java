@@ -8,13 +8,13 @@ import main.KeyHandler;
 
 public class Player extends Entity {
     
-    GamePanel gp;
     KeyHandler keyH;
     int spriteNum = 1;
 
     public Player(GamePanel gp, KeyHandler keyH) {
 
-        this.gp = gp;
+        super(gp);
+
         this.keyH = keyH;
         setDefaultValues();
         getPlayerImage();
@@ -27,8 +27,8 @@ public class Player extends Entity {
         direction = "down";
     }
 
-    public void getPlayerImage(){
-         try {
+    public void getPlayerImage() {
+        try {
             up1 = ImageIO.read(getClass().getResourceAsStream("/player/player_up_1.png"));
             up2 = ImageIO.read(getClass().getResourceAsStream("/player/player_up_2.png"));
             down1 = ImageIO.read(getClass().getResourceAsStream("/player/player_down_1.png"));
