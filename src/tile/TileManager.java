@@ -49,10 +49,10 @@ public class TileManager {
             tile[5].image = ImageIO.read(getClass().getResourceAsStream("/tiles/Wall2.png"));
 
             tile[6] = new Tile();
-            tile[6].image = ImageIO.read(getClass().getResourceAsStream("/tiles/Wall3.png"));
+            tile[6].image = ImageIO.read(getClass().getResourceAsStream("/tiles/Corner1.png"));
 
             tile[7] = new Tile();
-            tile[7].image = ImageIO.read(getClass().getResourceAsStream("/tiles/Corner.png"));
+            tile[7].image = ImageIO.read(getClass().getResourceAsStream("/tiles/Corner2.png"));
 
 
             // RIGHT WALLS
@@ -174,14 +174,7 @@ public class TileManager {
 
             int tileNum = mapTileNum[col][row];
             
-            g2.drawImage(
-                tile[tileNum].image,
-                x,
-                y,
-                gp.tileSize,
-                gp.tileSize,
-                null
-            );
+            g2.drawImage(tile[tileNum].image, x, y, gp.tileSize, gp.tileSize, null);
 
             col++;
             x += gp.tileSize;
