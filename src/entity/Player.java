@@ -49,8 +49,9 @@ public class Player extends Entity {
         int maxY = gp.getHeight() - gp.tileSize; // 528px
 
         if (keyH.upPressed) {
-            if (y - gp.tileSize >= 0) {
+            if (y - gp.tileSize >= 0 && gp.tileM.canMoveTo(x, y - gp.tileSize)) {
                 direction = "up";
+                gp.tileM.placeArrow(x, y, direction);
                 y -= gp.tileSize;
                 if (spriteNum == 1) {
                     spriteNum = 2;
@@ -61,8 +62,9 @@ public class Player extends Entity {
             keyH.upPressed = false;
         }
         if (keyH.downPressed) {
-            if (y + gp.tileSize <= maxY) {
+            if (y + gp.tileSize <= maxY && gp.tileM.canMoveTo(x, y + gp.tileSize)) {
                 direction = "down";
+                gp.tileM.placeArrow(x, y, direction);
                 y += gp.tileSize;
                 if (spriteNum == 1) {
                     spriteNum = 2;
@@ -73,8 +75,9 @@ public class Player extends Entity {
             keyH.downPressed = false;
         }
         if (keyH.rightPressed) {
-            if (x + gp.tileSize <= maxX) {
+            if (x + gp.tileSize <= maxX && gp.tileM.canMoveTo(x + gp.tileSize, y)) {
                 direction = "right";
+                gp.tileM.placeArrow(x, y, direction);
                 x += gp.tileSize;
                 if (spriteNum == 1) {
                     spriteNum = 2;
@@ -85,8 +88,9 @@ public class Player extends Entity {
             keyH.rightPressed = false;
         }
         if (keyH.leftPressed) {
-            if (x - gp.tileSize >= 0) {
+            if (x - gp.tileSize >= 0 && gp.tileM.canMoveTo(x - gp.tileSize, y)) {
                 direction = "left";
+                gp.tileM.placeArrow(x, y, direction);
                 x -= gp.tileSize;
                 if (spriteNum == 1) {
                     spriteNum = 2;

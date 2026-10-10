@@ -14,6 +14,8 @@ public class TileManager {
     GamePanel gp;
     Tile[] tile;
     int mapTileNum[][];
+    private String[][] arrows;
+    private final ArrowTiles arrowTiles = new ArrowTiles();
 
     public TileManager(GamePanel gp) {
 
@@ -128,6 +130,8 @@ public class TileManager {
 
     public void loadMap() {
 
+        arrows = new String[gp.maxScreenCol][gp.maxScreenRow];
+
         try {
 
             InputStream is = getClass().getResourceAsStream("/maps/map01.txt");
@@ -163,6 +167,24 @@ public class TileManager {
         }
     }
 
+    public boolean canMoveTo(int x, int y) {
+        if (x < 0 || y < 0 || x >= gp.screenWidth || y >= gp.screeHeight) {
+            return false;
+        }
+        int tileNum = mapTileNum[x / gp.tileSize][y / gp.tileSize];
+        return tileNum >= 0 && tileNum < 4;
+    }
+
+    public void placeArrow(int x, int y, String direction) {
+        if (canMoveTo(x, y)) {
+            arrows[x / gp.tileSize][y / gp.tileSize] = direction;
+        }
+    }
+
+    public String getArrowDirection(int col, int row) {
+        return arrows[col][row];
+    }
+
     public void draw(Graphics2D g2) {
         
         int col = 0;
@@ -174,7 +196,11 @@ public class TileManager {
 
             int tileNum = mapTileNum[col][row];
             
-            g2.drawImage(tile[tileNum].image, x, y, gp.tileSize, gp.tileSize, null);
+            BufferedImage image = tile[tileNum].image;
+            if (arrows[col][row] != null) {
+                image = arrowTiles.getImage(tileNum, arrows[col][row]);
+            }
+            g2.drawImage(image, x, y, gp.tileSize, gp.tileSize, null);
 
             col++;
             x += gp.tileSize;
