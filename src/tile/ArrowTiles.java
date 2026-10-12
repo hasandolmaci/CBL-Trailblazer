@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import javax.imageio.ImageIO;
 
-/** Each floor texture has four matching arrow PNGs. */
 public class ArrowTiles {
-    private final BufferedImage[][] images = new BufferedImage[4][4];
+    //create an array of arrow images [floor][directon]
+    private final BufferedImage[][] images = new BufferedImage[4][4]; 
 
+    //constructor class runs when tile manager creates an object
+    //load all png images
     public ArrowTiles() {
         String[] directions = {"right", "down", "left", "up"};
         for (int floor = 0; floor < 4; floor++) {
