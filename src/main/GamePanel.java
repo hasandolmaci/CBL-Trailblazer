@@ -27,7 +27,8 @@ public class GamePanel extends JPanel implements Runnable {
     KeyHandler keyH = new KeyHandler();
     Thread gameThread;
     Player player = new Player(this, keyH);
-    public Entity npc[] = new Entity[8];
+    public Entity[] npc = new Entity[10];
+    AssetSetter aSetter = new AssetSetter(this);
 
     //set default player position
     int playerX = tileSize * 3;
@@ -41,6 +42,8 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
+
+        aSetter.setNPC();
     }
 
     public void startGameThread() {
@@ -92,6 +95,13 @@ public class GamePanel extends JPanel implements Runnable {
         Graphics2D g2 = (Graphics2D) g;
 
         tileM.draw(g2);
+
+        // NPC
+        for (int i = 0; i < npc.length; i++) {
+            if (npc[i] != null) {
+                npc[i].draw(g2);
+            }
+        }
 
         player.draw(g2);
 

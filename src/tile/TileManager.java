@@ -13,7 +13,7 @@ public class TileManager {
     
     GamePanel gp;
     Tile[] tile;
-    int mapTileNum[][];
+    int[][] mapTileNum;
     private String[][] arrows;
     private final ArrowTiles arrowTiles = new ArrowTiles();
 
@@ -26,6 +26,14 @@ public class TileManager {
 
         getTileImage();
         loadMap();
+    }
+
+    public int getTileNum(int col, int row) {
+        return mapTileNum[col][row];
+    }
+
+    public void setTileNum(int col, int row, int num) {
+        mapTileNum[col][row] = num;
     }
 
     public void getTileImage() {
@@ -146,7 +154,7 @@ public class TileManager {
 
                 while (col < gp.maxScreenCol) {
                     
-                    String numbers[] = line.split(" ");
+                    String[] numbers = line.split(" ");
 
                     int num = Integer.parseInt(numbers[col]);
 

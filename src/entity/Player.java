@@ -1,7 +1,5 @@
 package entity;
 
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import main.GamePanel;
 import main.KeyHandler;
@@ -9,7 +7,6 @@ import main.KeyHandler;
 public class Player extends Entity {
     
     KeyHandler keyH;
-    int spriteNum = 1;
 
     public Player(GamePanel gp, KeyHandler keyH) {
 
@@ -101,44 +98,4 @@ public class Player extends Entity {
             keyH.leftPressed = false;
         }
     }
-
-    public void draw(Graphics2D g2) {
-
-        BufferedImage image = null;
-
-        switch(direction){
-            case "up":
-                if (spriteNum == 1) {
-                    image = up1;
-                } else {
-                    image = up2;
-                }
-                break;
-            case "down":
-                if (spriteNum == 1) {
-                    image = down1;
-                } else {
-                    image = down2;
-                }
-                break;
-            case "left":
-                if (spriteNum == 1) {
-                    image = left1;
-                } else {
-                    image = left2;
-                }
-                break;
-            case "right":
-                if (spriteNum == 1) {
-                    image = right1;
-                } else {
-                    image = right2;
-                }
-                break;
-        }
-
-        g2.drawImage(image, x, y, gp.tileSize, gp.tileSize, null);
-    }
-
-    
 }
