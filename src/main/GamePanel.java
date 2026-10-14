@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.Scanner;
 import javax.swing.JPanel;
 import tile.TileManager;
 
@@ -20,6 +21,7 @@ public class GamePanel extends JPanel implements Runnable {
     public final int maxScreenRow = 12;
     public final int screenWidth = tileSize * maxScreenCol; // 768 pixels
     public final int screeHeight = tileSize * maxScreenRow; // 576 pixels
+
 
     int fps = 60;
 
@@ -60,7 +62,15 @@ public class GamePanel extends JPanel implements Runnable {
         
         while (gameThread != null) {
             
-            update();   // update information
+            player.update();   // update information
+
+            for (int i = 0; i < npc.length; i++) {      //update all robots
+
+                if (npc[i] != null) {
+                    npc[i].update();
+                }
+
+            }
 
             repaint();  // redraw updated screen
 

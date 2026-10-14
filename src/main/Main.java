@@ -1,5 +1,7 @@
 package main;
 
+import java.util.Scanner;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 
 public class Main {
@@ -14,12 +16,28 @@ public class Main {
         GamePanel gamePanel = new GamePanel();
         window.add(gamePanel);
 
+        JButton moveButton = new JButton("Move Robot");
+        moveButton.setFocusable(false);
+        window.add(moveButton, "North");
+
         window.pack();
 
         window.setLocationRelativeTo(null);
         window.setVisible(true);
 
         gamePanel.startGameThread();
+
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            
+            int robNum = scanner.nextInt();
+            System.out.println("The robot you are moving is: robot " + robNum);
+
+            moveButton.addActionListener(e -> {
+                gamePanel.npc[robNum].startMoving();
+            });
+        }
 
     }
 

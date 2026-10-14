@@ -51,4 +51,10 @@ public class Entity {
             g2.drawImage(image, x, y, gp.tileSize, gp.tileSize, null);
         }
     }
+
+    public void update() {
+    }
+
+    public void startMoving() {
+    }
 }
