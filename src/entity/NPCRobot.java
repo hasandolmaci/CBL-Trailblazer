@@ -8,6 +8,7 @@ public class NPCRobot extends Entity {
     int moveCounter = 0;
     boolean moving = false;
     boolean firstMove = true;
+    int pixelsMoved = 0;
 
     public NPCRobot(GamePanel gp, String color, String direction) {
         super(gp);
@@ -52,55 +53,57 @@ public class NPCRobot extends Entity {
     @Override
     public void update() {
 
-        if (moving) {
+        if (moving == true) {
 
             moveCounter++;
 
-            if (moveCounter >= 13) {
+            if (moveCounter >= 9) {
                 moveCounter = 0;
 
+                // Check direction only when a full tile has been completed
+                if (pixelsMoved == 0) {
+
+                    if (firstMove == true) {
+                        firstMove = false;
+                    } else {
+
+                        int col = x / gp.tileSize;
+                        int row = y / gp.tileSize;
+
+                        String arrow = gp.tileM.getArrowDirection(col, row);
+
+                        if (arrow == null) {
+                            moving = false;
+                            return;
+                        }
+
+                        direction = arrow;
+                    }
+                }
+
+                // Change movement sprite
                 if (spriteNum == 1) {
                     spriteNum = 2;
                 } else {
                     spriteNum = 1;
                 }
 
-                if (firstMove) {
-
-                    firstMove = false;
-
-                    if (direction.equals("up")) {
-                        y = y - gp.tileSize;
-                    } else if (direction.equals("down")) {
-                        y = y + gp.tileSize;
-                    } else if (direction.equals("left")) {
-                        x = x - gp.tileSize;
-                    } else if (direction.equals("right")) {
-                        x = x + gp.tileSize;
-                    }
-                    return;
+                // Move 24 pixels in the current direction
+                if (direction.equals("up")) {
+                    y = y - 24;
+                } else if (direction.equals("down")) {
+                    y = y + 24;
+                } else if (direction.equals("left")) {
+                    x = x - 24;
+                } else if (direction.equals("right")) {
+                    x = x + 24;
                 }
 
-                int col = x / gp.tileSize;
-                int row = y / gp.tileSize;
+                // Track distance travelled in the current tile
+                pixelsMoved = pixelsMoved + 24;
 
-                String arrow = gp.tileM.getArrowDirection(col, row);
-
-                if (arrow == null) {
-                    moving = false;
-                    return;
-                }
-
-                direction = arrow;
-
-                if (arrow.equals("up")) {
-                    y = y - gp.tileSize;
-                } else if (arrow.equals("down")) {
-                    y = y + gp.tileSize;
-                } else if (arrow.equals("left")) {
-                    x = x - gp.tileSize;
-                } else if (arrow.equals("right")) {
-                    x = x + gp.tileSize;
+                if (pixelsMoved >= gp.tileSize) {
+                    pixelsMoved = 0;
                 }
             }
         }
