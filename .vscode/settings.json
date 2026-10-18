@@ -2,5 +2,11 @@
     "java.project.sourcePaths": [
         "src",
         "res"
+    ],
+    "java.project.outputPath": "out",
+    "java.project.resourceFilters": [
+        "node_modules",
+        ".git",
+        "out"
     ]
 }

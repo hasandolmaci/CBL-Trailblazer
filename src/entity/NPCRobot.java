@@ -1,111 +1,156 @@
 package entity;
 
-import javax.imageio.ImageIO;
+import java.awt.Graphics2D;
+import java.util.HashSet;
+import java.util.Set;
 import main.GamePanel;
+import main.GameState;
+import main.ImageLoader;
 
 public class NPCRobot extends Entity {
+    public static final long STEP_DURATION_NANOS = 300_000_000L;
+    public final String color;
+    public boolean active;
+    public boolean locked;
+    private boolean firstMove = true;
+    private boolean stepping;
+    private int targetX;
+    private int targetY;
+    private long stepStarted;
+    private double progress;
+    private final Set<String> visitedStates = new HashSet<>();
 
-    int moveCounter = 0;
-    boolean moving = false;
-    boolean firstMove = true;
-    int pixelsMoved = 0;
-
+    /*
+     Creates a robot with its own cloor and starting direction. It loads the matching
+     walking pictures, while the map loader sets its psoition.
+     */
     public NPCRobot(GamePanel gp, String color, String direction) {
         super(gp);
-
+        this.color = color;
         this.direction = direction;
         getImage(color);
     }
 
+    /*
+     Loads the eight walking images from the folder for this robot color. Each
+     direction has two frames.
+     */
     public void getImage(String color) {
-        try {
-            
-            up1 = 
-            ImageIO.read(getClass().getResourceAsStream("/npc/" + color + "/robot_up_1.png"));
-            up2 = 
-            ImageIO.read(getClass().getResourceAsStream("/npc/" + color + "/robot_up_2.png"));
+        String folder = "/npc/" + color + "/robot_";
+        up1 = ImageLoader.load(folder + "up_1.png");
+        up2 = ImageLoader.load(folder + "up_2.png");
+        down1 = ImageLoader.load(folder + "down_1.png");
+        down2 = ImageLoader.load(folder + "down_2.png");
+        left1 = ImageLoader.load(folder + "left_1.png");
+        left2 = ImageLoader.load(folder + "left_2.png");
+        right1 = ImageLoader.load(folder + "right_1.png");
+        right2 = ImageLoader.load(folder + "right_2.png");
+    }
 
-            down1 = 
-            ImageIO.read(getClass().getResourceAsStream("/npc/" + color + "/robot_down_1.png"));
-            down2 = 
-            ImageIO.read(getClass().getResourceAsStream("/npc/" + color + "/robot_down_2.png"));
-
-            left1 = 
-            ImageIO.read(getClass().getResourceAsStream("/npc/" + color + "/robot_left_1.png"));
-            left2 = 
-            ImageIO.read(getClass().getResourceAsStream("/npc/" + color + "/robot_left_2.png"));
-
-            right1 = 
-            ImageIO.read(getClass().getResourceAsStream("/npc/" + color + "/robot_right_1.png"));
-            right2 = 
-            ImageIO.read(getClass().getResourceAsStream("/npc/" + color + "/robot_right_2.png"));
-
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
+    /*
+     Starts tihs robot only while the robot phase is running. A robot that is already
+     moving or parked cannot start again.
+     */
+    public void activate(long now) {
+        if (active || locked || gp.getGameState() != GameState.RUNNING) {
+            return;
         }
+        active = true;
+        beginStep(now);
     }
 
-    @Override
-    public void startMoving() {
-        moving = true;
-    }
-
-    @Override
-    public void update() {
-
-        if (moving == true) {
-
-            moveCounter++;
-
-            if (moveCounter >= 9) {
-                moveCounter = 0;
-
-                // Check direction only when a full tile has been completed
-                if (pixelsMoved == 0) {
-
-                    if (firstMove == true) {
-                        firstMove = false;
-                    } else {
-
-                        int col = x / gp.tileSize;
-                        int row = y / gp.tileSize;
-
-                        String arrow = gp.tileM.getArrowDirection(col, row);
-
-                        if (arrow == null) {
-                            moving = false;
-                            return;
-                        }
-
-                        direction = arrow;
-                    }
-                }
-
-                // Change movement sprite
-                if (spriteNum == 1) {
-                    spriteNum = 2;
-                } else {
-                    spriteNum = 1;
-                }
-
-                // Move 24 pixels in the current direction
-                if (direction.equals("up")) {
-                    y = y - 24;
-                } else if (direction.equals("down")) {
-                    y = y + 24;
-                } else if (direction.equals("left")) {
-                    x = x - 24;
-                } else if (direction.equals("right")) {
-                    x = x + 24;
-                }
-
-                // Track distance travelled in the current tile
-                pixelsMoved = pixelsMoved + 24;
-
-                if (pixelsMoved >= gp.tileSize) {
-                    pixelsMoved = 0;
-                }
+    /*
+     Chooses the nxet tile and checks whether the robot can enter it. The first step
+     uses its starting direction, ltaer steps use arrows.
+     */
+    private void beginStep(long now) {
+        if (!firstMove) {
+            String arrow = gp.tileM.getArrowDirection(x / gp.tileSize, y / gp.tileSize);
+            if (arrow == null) {
+                gp.gameOver(color + " robot reached the end of its arrow path.");
+                return;
+            }
+            direction = arrow;
+            String state = x + "," + y + "," + direction;
+            if (!visitedStates.add(state)) {
+                gp.gameOver(color + " robot entered an endless arrow loop.");
+                return;
             }
         }
+
+        targetX = x;
+        targetY = y;
+        switch (direction) {
+            case "up": targetY -= gp.tileSize; break;
+            case "down": targetY += gp.tileSize; break;
+            case "left": targetX -= gp.tileSize; break;
+            case "right": targetX += gp.tileSize; break;
+            default: gp.gameOver("Unknown robot direction: " + direction); return;
+        }
+        if (!gp.tileM.canMoveTo(targetX, targetY) || gp.isExitAt(targetX, targetY)) {
+            gp.gameOver(color + " robot hit a wall or the exit.");
+            return;
+        }
+        if (gp.isPlayerAt(targetX, targetY)) {
+            gp.gameOver(color + " robot collided with the player.");
+            return;
+        }
+        if (gp.robotAt(targetX, targetY, this) != null) {
+            gp.gameOver(color + " robot collided with another robot.");
+            return;
+        }
+        stepStarted = now;
+        progress = 0;
+        stepping = true;
+    }
+
+    /*
+     Works out how far the robot has moved between two tiles using elapsed time. Once
+     it raeches the destination, it checks for a pressure plate.
+     */
+    public void updateMovement(long now) {
+        if (!active || locked || !stepping || gp.getGameState() != GameState.RUNNING) {
+            return;
+        }
+        progress = Math.min(1.0, Math.max(0.0,
+            (double) (now - stepStarted) / STEP_DURATION_NANOS));
+        if (progress < 0.5) {
+            spriteNum = 1;
+        } else {
+            spriteNum = 2;
+        }
+        if (progress < 1.0) {
+            return;
+        }
+        x = targetX;
+        y = targetY;
+        stepping = false;
+        firstMove = false;
+
+        PressurePlate plate = gp.getPlateAt(x, y);
+        if (plate != null) {
+            locked = true;
+            active = false;
+            spriteNum = 1;
+            plate.activated = true;
+            gp.robotReachedPlate(plate, now);
+        } else {
+            beginStep(now);
+        }
+    }
+
+    @Override
+    /*
+     Draws the robot between its current tile and its destination wihle a step is
+     happening. The actual tile position changes only when the step finishes.
+     */
+    public void draw(Graphics2D graphics) {
+        Graphics2D copy = (Graphics2D) graphics.create();
+        if (stepping) {
+            copy.translate(Math.round((targetX - x) * progress),
+                           Math.round((targetY - y) * progress));
+        }
+        super.draw(copy);
+        copy.dispose();
     }
 }

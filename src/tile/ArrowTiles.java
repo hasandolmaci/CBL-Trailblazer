@@ -1,44 +1,37 @@
 package tile;
 
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
-import javax.imageio.ImageIO;
+import main.ImageLoader;
 
 public class ArrowTiles {
-    //create an array of arrow images [floor][directon]
-    private final BufferedImage[][] images = new BufferedImage[4][4]; 
+    private final BufferedImage[][] images = new BufferedImage[4][4];
 
-    //constructor class runs when tile manager creates an object
-    //load all png images
+    /*
+     Loads all sixteen arrow pictures once. The outer loop selects a floor texture
+     and the inenr loop selects a direction.
+     */
     public ArrowTiles() {
         String[] directions = {"right", "down", "left", "up"};
         for (int floor = 0; floor < 4; floor++) {
             for (int direction = 0; direction < directions.length; direction++) {
                 String path = "/tiles/arrows/Floor" + (floor + 1)
                     + "_" + directions[direction] + ".png";
-                try (InputStream stream = getClass().getResourceAsStream(path)) {
-                    if (stream == null) {
-                        throw new IllegalStateException("Missing arrow image: " + path);
-                    }
-                    images[floor][direction] = ImageIO.read(stream);
-                    if (images[floor][direction] == null) {
-                        throw new IllegalStateException("Invalid arrow image: " + path);
-                    }
-                } catch (IOException e) {
-                    throw new IllegalStateException("Cannot load arrow image: " + path, e);
-                }
+                images[floor][direction] = ImageLoader.load(path);
             }
         }
     }
 
+    /*
+     Returns the arrow picture matching the floor number and direction. The floor
+     sleects a row in the image array and the direction selects a column.
+     */
     public BufferedImage getImage(int floor, String direction) {
         switch (direction) {
             case "right": return images[floor][0];
             case "down": return images[floor][1];
             case "left": return images[floor][2];
             case "up": return images[floor][3];
-            default: throw new IllegalArgumentException("Unknown direction: " + direction);
+            default: return null;
         }
     }
 }

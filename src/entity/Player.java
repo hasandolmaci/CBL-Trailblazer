@@ -1,13 +1,17 @@
 package entity;
 
-import javax.imageio.ImageIO;
+import main.ImageLoader;
 import main.GamePanel;
 import main.KeyHandler;
 
 public class Player extends Entity {
-    
+
     KeyHandler keyH;
 
+    /*
+     Connects the palyer to the game panel and keyboard handler. It sets a starting
+     position and loads the walking pictures.
+     */
     public Player(GamePanel gp, KeyHandler keyH) {
 
         super(gp);
@@ -17,6 +21,10 @@ public class Player extends Entity {
         getPlayerImage();
     }
 
+    /*
+     Gives the palyer an initial position and makes it face down. These values are
+     used during construction, before the map cohoses the actual starting tile.
+     */
     public void setDefaultValues() {
 
         x = gp.tileSize * 3;
@@ -24,78 +32,38 @@ public class Player extends Entity {
         direction = "down";
     }
 
+    /*
+     Loads two walking pictures for each of the four directions.
+     */
     public void getPlayerImage() {
-        try {
-            up1 = ImageIO.read(getClass().getResourceAsStream("/player/player_up_1.png"));
-            up2 = ImageIO.read(getClass().getResourceAsStream("/player/player_up_2.png"));
-            down1 = ImageIO.read(getClass().getResourceAsStream("/player/player_down_1.png"));
-            down2 = ImageIO.read(getClass().getResourceAsStream("/player/player_down_2.png"));
-            left1 = ImageIO.read(getClass().getResourceAsStream("/player/player_left_1.png"));
-            left2 = ImageIO.read(getClass().getResourceAsStream("/player/player_left_2.png"));
-            right1 = ImageIO.read(getClass().getResourceAsStream("/player/player_right_1.png"));
-            right2 = ImageIO.read(getClass().getResourceAsStream("/player/player_right_2.png"));
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        }
+        up1 = ImageLoader.load("/player/player_up_1.png");
+        up2 = ImageLoader.load("/player/player_up_2.png");
+        down1 = ImageLoader.load("/player/player_down_1.png");
+        down2 = ImageLoader.load("/player/player_down_2.png");
+        left1 = ImageLoader.load("/player/player_left_1.png");
+        left2 = ImageLoader.load("/player/player_left_2.png");
+        right1 = ImageLoader.load("/player/player_right_1.png");
+        right2 = ImageLoader.load("/player/player_right_2.png");
     }
 
+    @Override
+    /*
+     Reads one requested driection from the keyboard and clears the saved key
+     presses. If movement is allowed, it asks the game panel to try taht move.
+     */
     public void update() {
-
-        // to keep player inside the grid
-        int maxX = gp.getWidth() - gp.tileSize; // 720px
-        int maxY = gp.getHeight() - gp.tileSize; // 528px
-
-        if (keyH.upPressed) {
-            if (y - gp.tileSize >= 0 && gp.tileM.canMoveTo(x, y - gp.tileSize)) {
-                direction = "up";
-                gp.tileM.placeArrow(x, y, direction);
-                y -= gp.tileSize;
-                if (spriteNum == 1) {
-                    spriteNum = 2;
-                } else {
-                    spriteNum = 1;
-                }
-            }
-            keyH.upPressed = false;
+        if (!gp.canPlayerMove()) {
+            keyH.clear();
+            return;
         }
-        if (keyH.downPressed) {
-            if (y + gp.tileSize <= maxY && gp.tileM.canMoveTo(x, y + gp.tileSize)) {
-                direction = "down";
-                gp.tileM.placeArrow(x, y, direction);
-                y += gp.tileSize;
-                if (spriteNum == 1) {
-                    spriteNum = 2;
-                } else {
-                    spriteNum = 1;
-                }
-            }
-            keyH.downPressed = false;
-        }
-        if (keyH.rightPressed) {
-            if (x + gp.tileSize <= maxX && gp.tileM.canMoveTo(x + gp.tileSize, y)) {
-                direction = "right";
-                gp.tileM.placeArrow(x, y, direction);
-                x += gp.tileSize;
-                if (spriteNum == 1) {
-                    spriteNum = 2;
-                } else {
-                    spriteNum = 1;
-                }
-            }
-            keyH.rightPressed = false;
-        }
-        if (keyH.leftPressed) {
-            if (x - gp.tileSize >= 0 && gp.tileM.canMoveTo(x - gp.tileSize, y)) {
-                direction = "left";
-                gp.tileM.placeArrow(x, y, direction);
-                x -= gp.tileSize;
-                if (spriteNum == 1) {
-                    spriteNum = 2;
-                } else {
-                    spriteNum = 1;
-                }
-            }
-            keyH.leftPressed = false;
+        String requested = null;
+        if (keyH.upPressed) { requested = "up"; }
+        else if (keyH.downPressed) { requested = "down"; }
+        else if (keyH.rightPressed) { requested = "right"; }
+        else if (keyH.leftPressed) { requested = "left"; }
+        keyH.clear();
+        if (requested != null) {
+            gp.tryMovePlayer(requested);
         }
     }
 }

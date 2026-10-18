@@ -6,7 +6,7 @@ import java.awt.image.BufferedImage;
 import main.GamePanel;
 
 public class Entity {
-    
+
     GamePanel gp;
     public int x;
     public int y;
@@ -23,11 +23,19 @@ public class Entity {
     public int spriteNum = 1;
     public Rectangle solidArea;
 
+    /*
+     Stores the game panel so the player and robots can use the smae tile size and
+     game rules. It also makes a square collision area matching one tile.
+     */
     public Entity(GamePanel gp) {
         this.gp = gp;
         solidArea = new Rectangle(0, 0, gp.tileSize, gp.tileSize);
     }
 
+    /*
+     Chooses the pciture for the direction this entity is facing. The sprite number
+     selects one of the two walking frames.
+     */
     public void draw(Graphics2D g2) {
 
         BufferedImage image = null;
@@ -52,9 +60,17 @@ public class Entity {
         }
     }
 
+    /*
+     Leaves a palce for child classes to define their own update behaviour. The
+     player replaces this method with keyboard mvoement.
+     */
     public void update() {
     }
 
+    /*
+     This empty method is left from the earlier movement code. It currently does
+     nothing.
+     */
     public void startMoving() {
     }
 }
