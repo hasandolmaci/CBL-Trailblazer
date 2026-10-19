@@ -29,7 +29,7 @@ public class TileManager {
         mapTileNum = new int[gp.maxScreenCol][gp.maxScreenRow];
 
         getTileImage();
-        loadMap();
+        loadMap(1);
     }
 
     /*
@@ -149,9 +149,16 @@ public class TileManager {
      Reads the map rwos into a fresh array and clears the arrows after loading
      succeeds. Spaces separate the tile nmubers.
      */
-    public void loadMap() {
+    public void loadMap(int level) {
+
+        // Build the map filename using the level number.
+        String mapName = "/maps/map0" + level + ".txt";
+
         int[][] freshMap = new int[gp.maxScreenCol][gp.maxScreenRow];
-        InputStream stream = getClass().getResourceAsStream("/maps/map01.txt");
+
+        // Load the map belonging to the selected level.
+        InputStream stream = getClass().getResourceAsStream(mapName);
+        
         if (stream == null) {
             throw new IllegalStateException("Missing map01.txt");
         }
