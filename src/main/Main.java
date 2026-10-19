@@ -6,10 +6,8 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -37,9 +35,6 @@ public class Main {
 
             gameScreen.add(gamePanel, BorderLayout.CENTER);
 
-            JLabel status = new JLabel();
-            status.setBorder(BorderFactory.createEmptyBorder(10, 12, 10, 12));
-            gameScreen.add(status, BorderLayout.NORTH);
             JButton moveButton = new JButton("Move blue robot");
             JButton restartButton = new JButton("Restart");
             JButton menuButton = new JButton("Menu");
@@ -69,8 +64,6 @@ public class Main {
                     gamePanel.getGameState() == GameState.WON
                     && gamePanel.currentLevel < gamePanel.totalLevels
                 );
-                status.setText(gamePanel.getStatus());
-                status.setVisible(!gamePanel.getStatus().isEmpty());
                 window.pack();
                 moveButton.setEnabled(gamePanel.getGameState() == GameState.PLANNING);
             });
