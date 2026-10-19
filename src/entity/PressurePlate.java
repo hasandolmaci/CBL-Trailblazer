@@ -20,7 +20,7 @@ public class PressurePlate {
         this.x = x;
         this.y = y;
         this.color = color;
-        image = ImageLoader.load("/sprites/colored/plate_" + color + ".png");
+        image = ImageLoader.load("/plates/plate_" + color + ".png");
     }
 
     /*
