@@ -25,6 +25,11 @@ public class GamePanel extends JPanel {
     public final int maxScreenRow = 12;
     public final int screenWidth = tileSize * maxScreenCol;
     public final int screeHeight = tileSize * maxScreenRow;
+    
+    public int currentLevel = 1;
+    public final int totalLevels = 4;
+    public int highestUnlockedLevel = 1;
+    public boolean inMenu = true;
 
     public final TileManager tileM = new TileManager(this);
     final KeyHandler keyH = new KeyHandler();
@@ -111,10 +116,13 @@ public class GamePanel extends JPanel {
     }
 
     /*
-     Runs one game update. It handles player input only when movement is allowed,
-     ohterwise it clears that input.
-     */
+    * Updates player and robot movement when gameplay is active.
+    * Pauses updates while the menu is displayed.
+    */
     public void update(long now) {
+        if (inMenu) {
+            return;
+        }
         if (canPlayerMove()) {
             player.update();
         } else {
@@ -155,10 +163,18 @@ public class GamePanel extends JPanel {
         player.x = nextX;
         player.y = nextY;
         player.direction = direction;
-        if (player.spriteNum == 1) { player.spriteNum = 2; }
-        else { player.spriteNum = 1; }
+        player.nextAnimationFrame();
+        
+        /*
+        * Unlocks the following level when the current level is completed.
+        */
         if (state == GameState.EXIT_READY && isExitAt(nextX, nextY)) {
-            setState(GameState.WON, "Level complete! Choose Restart to play again.");
+            if (currentLevel < totalLevels) {
+                if (currentLevel + 1 > highestUnlockedLevel) {
+                    highestUnlockedLevel = currentLevel + 1;
+                }
+            }
+            setState(GameState.WON, "Level " + currentLevel + " complete!");
         }
         return true;
     }
@@ -268,14 +284,21 @@ public class GamePanel extends JPanel {
     }
 
     /*
-     Loads the original map again and rebuilds its etnities. This clears arrows,
-     resets robots and plates, and locks the exit.
+     * Loads the selected level and resets its map, entities and game state.
      */
-    public void restartLevel() {
-        tileM.loadMap();
+    public void loadLevel(int level) {
+        currentLevel = level;
+        tileM.loadMap(currentLevel);
         assetSetter.setAssets();
         setState(GameState.PLANNING, "");
         requestFocusInWindow();
+    }
+
+    /*
+    * Restarts the currently selected level.
+    */
+    public void restartLevel() {
+        loadLevel(currentLevel);
     }
 
     @Override
@@ -298,11 +321,19 @@ public class GamePanel extends JPanel {
             g2.fillRect(0, 0, screenWidth, screeHeight);
             g2.setColor(Color.WHITE);
             g2.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 36));
-            String title = state == GameState.WON ? "Level complete!" : "Game over";
-            drawCentered(g2, title, 235);
+            if (state == GameState.GAME_OVER) {
+                drawCentered(g2, "Game over", 235);
+            }
             g2.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 16));
             drawCentered(g2, status, 280);
-            drawCentered(g2, "Use Restart below to restore the original level.", 320);
+            /*
+            * Displays the available options after winning or losing.
+            */
+            if (state == GameState.WON) {
+                drawCentered(g2, "Choose Next level or Menu below.", 320);
+            } else {
+                drawCentered(g2, "Choose Restart or Menu below.", 320);
+            }
         }
         g2.dispose();
     }
@@ -313,6 +344,7 @@ public class GamePanel extends JPanel {
      instruction.
      */
     private void drawCentered(Graphics2D graphics, String text, int y) {
+        graphics.setFont(MenuStyle.pixelFont(12));
         int width = graphics.getFontMetrics().stringWidth(text);
         graphics.drawString(text, (screenWidth - width) / 2, y);
     }

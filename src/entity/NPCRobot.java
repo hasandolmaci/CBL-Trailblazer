@@ -8,7 +8,7 @@ import main.GameState;
 import main.ImageLoader;
 
 public class NPCRobot extends Entity {
-    public static final long STEP_DURATION_NANOS = 300_000_000L;
+    public static final long STEP_DURATION_NANOS = 350_000_000L;
     public final String color;
     public boolean active;
     public boolean locked;
@@ -19,6 +19,8 @@ public class NPCRobot extends Entity {
     private long stepStarted;
     private double progress;
     private final Set<String> visitedStates = new HashSet<>();
+    private long lastAnimationTime = 0;
+    private int animationStep = 0;
 
     /*
      Creates a robot with its own cloor and starting direction. It loads the matching
@@ -39,12 +41,19 @@ public class NPCRobot extends Entity {
         String folder = "/npc/" + color + "/robot_";
         up1 = ImageLoader.load(folder + "up_1.png");
         up2 = ImageLoader.load(folder + "up_2.png");
+        up3 = ImageLoader.load(folder + "up_3.png");
+
         down1 = ImageLoader.load(folder + "down_1.png");
         down2 = ImageLoader.load(folder + "down_2.png");
+        down3 = ImageLoader.load(folder + "down_3.png");
+
         left1 = ImageLoader.load(folder + "left_1.png");
         left2 = ImageLoader.load(folder + "left_2.png");
+        left3 = ImageLoader.load(folder + "left_3.png");
+
         right1 = ImageLoader.load(folder + "right_1.png");
         right2 = ImageLoader.load(folder + "right_2.png");
+        right3 = ImageLoader.load(folder + "right_3.png");
     }
 
     /*
@@ -114,10 +123,25 @@ public class NPCRobot extends Entity {
         }
         progress = Math.min(1.0, Math.max(0.0,
             (double) (now - stepStarted) / STEP_DURATION_NANOS));
-        if (progress < 0.5) {
-            spriteNum = 1;
-        } else {
-            spriteNum = 2;
+
+        if (now - lastAnimationTime >= 200_000_000L) {
+            lastAnimationTime = now;
+            animationStep++;
+
+            if (animationStep > 3) {
+                animationStep = 0;
+            }
+
+            if (animationStep == 0 || animationStep == 2) {
+                spriteNum = 1;
+            }
+            else if (animationStep == 1) {
+                spriteNum = 2;
+            }
+            else if (animationStep == 3) {
+                spriteNum = 3;
+            }
+        
         }
         if (progress < 1.0) {
             return;

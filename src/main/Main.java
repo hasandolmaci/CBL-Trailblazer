@@ -1,7 +1,9 @@
 package main;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
@@ -21,20 +23,63 @@ public class Main {
             JFrame window = new JFrame("TrailBlazer");
             window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             window.setResizable(false);
-            GamePanel gamePanel = new GamePanel();
-            window.add(gamePanel, BorderLayout.CENTER);
 
-            JLabel status = new JLabel();
-            status.setBorder(BorderFactory.createEmptyBorder(10, 12, 10, 12));
-            window.add(status, BorderLayout.NORTH);
+            /*
+            * Creates separate menu and gameplay screens within the same window.
+            */
+            GamePanel gamePanel = new GamePanel();
+
+            CardLayout cardLayout = new CardLayout();
+            JPanel screens = new JPanel(cardLayout);
+
+            JPanel menuPanel = new JPanel(new BorderLayout());
+            JPanel gameScreen = new JPanel(new BorderLayout());
+
+            gameScreen.setBackground(MenuStyle.background);
+
+            IntroductionPanel introductionPanel = new IntroductionPanel();
+
+            introductionPanel.proceedButton.addActionListener(event -> {
+                cardLayout.show(screens, "MENU");
+            });
+
+            gameScreen.add(gamePanel, BorderLayout.CENTER);
+
             JButton moveButton = new JButton("Move blue robot");
             JButton restartButton = new JButton("Restart");
+            JButton menuButton = new JButton("Menu");
+            JButton nextButton = new JButton("Next level");
+            nextButton.setFocusable(false);
+            menuButton.setFocusable(false);
             moveButton.setFocusable(false);
             restartButton.setFocusable(false);
-            JPanel controls = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 8));
+
+            MenuStyle.styleButton(moveButton);
+            MenuStyle.styleButton(restartButton);
+            MenuStyle.styleButton(menuButton);
+            MenuStyle.styleButton(nextButton);
+
+            moveButton.setPreferredSize(new java.awt.Dimension(210, 48));
+            restartButton.setPreferredSize(new java.awt.Dimension(130, 48));
+            menuButton.setPreferredSize(new java.awt.Dimension(130, 48));
+            nextButton.setPreferredSize(new java.awt.Dimension(160, 48));
+
+            JPanel controls = new JPanel(new FlowLayout(FlowLayout.CENTER, 18, 12));
+            controls.setBackground(MenuStyle.background);
+            controls.setBorder(
+                BorderFactory.createEmptyBorder(12, 12, 12, 12)
+            );
+
             controls.add(moveButton);
             controls.add(restartButton);
-            window.add(controls, BorderLayout.SOUTH);
+            controls.add(menuButton);
+            controls.add(nextButton);
+
+            gameScreen.add(controls, BorderLayout.SOUTH);
+
+            /*
+            * Disables level buttons that have not been unlocked yet.
+            */
 
             moveButton.addActionListener(event -> {
                 gamePanel.startBlueRobot();
@@ -42,8 +87,10 @@ public class Main {
             });
             restartButton.addActionListener(event -> gamePanel.restartLevel());
             gamePanel.setStateListener(() -> {
-                status.setText(gamePanel.getStatus());
-                status.setVisible(!gamePanel.getStatus().isEmpty());
+                nextButton.setVisible(
+                    gamePanel.getGameState() == GameState.WON
+                    && gamePanel.currentLevel < gamePanel.totalLevels
+                );
                 window.pack();
                 moveButton.setEnabled(gamePanel.getGameState() == GameState.PLANNING);
             });
@@ -52,12 +99,142 @@ public class Main {
                  Stops the game timer when the window closes. This keeps updates from
                  continuing after the player has fniished using the window.
                  */
-                @Override public void windowClosing(WindowEvent event) { gamePanel.stopGameLoop(); }
+                @Override public void windowClosing(WindowEvent event) { 
+                    gamePanel.stopGameLoop(); 
+                }
             });
+
+            /*
+            * Creates the level-selection buttons and loads the selected level.
+            */
+            JPanel levelButtons = new JPanel(new GridLayout(4, 1, 15, 15));
+            JButton[] levels = new JButton[4];
+
+            for (int i = 0; i < 4; i++) {
+                int levelNumber = i + 1;
+
+                JButton button = new JButton("Level " + levelNumber);
+                MenuStyle.styleButton(button);
+                levels[i] = button;
+                levelButtons.add(button);
+
+                button.addActionListener(event -> {
+                    if (levelNumber <= gamePanel.highestUnlockedLevel) {
+                        gamePanel.inMenu = false;
+                        gamePanel.loadLevel(levelNumber);
+                        cardLayout.show(screens, "GAME");
+                        gamePanel.requestFocusInWindow();
+                    }
+                });
+            }
+
+            /*
+            * Refreshes unlocked levels and returns to the menu.
+            */
+            menuButton.addActionListener(event -> {
+                gamePanel.inMenu = true;
+
+                for (int i = 0; i < 4; i++) {
+                    int levelNumber = i + 1;
+
+                    if (levelNumber <= gamePanel.highestUnlockedLevel) {
+                        levels[i].setEnabled(true);
+                        levels[i].setText("Level " + levelNumber);
+                    } else {
+                        levels[i].setEnabled(false);
+                        levels[i].setText("Level " + levelNumber + " - Locked");
+                    }
+                }
+
+                cardLayout.show(screens, "MENU");
+            });
+
+            /*
+            * Loads the next level after successfully completing the current one.
+            */
+            nextButton.addActionListener(event -> {
+                if (gamePanel.getGameState() == GameState.WON
+                        && gamePanel.currentLevel < gamePanel.totalLevels) {
+                    gamePanel.loadLevel(gamePanel.currentLevel + 1);
+                }
+            });
+
+            JLabel title = new JLabel("TRAILBLAZER", JLabel.CENTER);
+            title.setFont(MenuStyle.pixelFont(28));
+            title.setForeground(MenuStyle.gold);
+
+            JButton introductionButton = new JButton("Introduction Screen");
+            JButton exitButton = new JButton("Exit Game");
+            MenuStyle.styleButton(introductionButton);
+            MenuStyle.styleButton(exitButton);
+
+            JPanel topButtons = new JPanel(new GridLayout(1, 2, 10, 0));
+            topButtons.setPreferredSize(new java.awt.Dimension(0, 65));
+            topButtons.add(introductionButton);
+            topButtons.add(exitButton);
+
+            JPanel menuTop = new JPanel(new BorderLayout(10, 35));
+            menuTop.add(title, BorderLayout.NORTH);
+            menuTop.add(topButtons, BorderLayout.SOUTH);
+
+            menuPanel.setBackground(MenuStyle.background);
+            menuTop.setBackground(MenuStyle.background);
+            topButtons.setBackground(MenuStyle.background);
+            levelButtons.setBackground(MenuStyle.background);
+
+            menuPanel.setBorder(
+                BorderFactory.createEmptyBorder(30, 40, 30, 40)
+            );
+
+            menuPanel.add(menuTop, BorderLayout.NORTH);
+
+            JPanel levelContainer = new JPanel(new BorderLayout());
+            levelContainer.setBackground(MenuStyle.background);
+            levelContainer.setBorder(
+                BorderFactory.createEmptyBorder(20, 0, 0, 0)
+            );
+
+            levelButtons.setPreferredSize(new java.awt.Dimension(0, 380));
+            levelContainer.add(levelButtons, BorderLayout.NORTH);
+
+            menuPanel.add(levelContainer, BorderLayout.CENTER);
+
+            introductionButton.addActionListener(event -> {
+                cardLayout.show(screens, "INTRODUCTION");
+            });
+
+            exitButton.addActionListener(event -> {
+                gamePanel.stopGameLoop();
+                window.dispose();
+                System.exit(0);
+            });
+
+            /*
+            * Registers both screens and displays the menu when the game starts.
+            */
+            screens.add(introductionPanel, "INTRODUCTION");
+            screens.add(menuPanel, "MENU");
+            screens.add(gameScreen, "GAME");
+
+            window.add(screens);
+            cardLayout.show(screens, "INTRODUCTION");
+
             window.pack();
             window.setLocationRelativeTo(null);
             window.setVisible(true);
             gamePanel.startGameLoop();
+
+            for (int i = 0; i < 4; i++) {
+                int levelNumber = i + 1;
+
+                if (levelNumber <= gamePanel.highestUnlockedLevel) {
+                    levels[i].setEnabled(true);
+                    levels[i].setText("Level " + levelNumber);
+                } else {
+                    levels[i].setEnabled(false);
+                    levels[i].setText("Level " + levelNumber + " - Locked");
+                }
+            }
         });
     }
 }

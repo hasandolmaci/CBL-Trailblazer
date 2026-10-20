@@ -6,8 +6,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import main.ImageLoader;
 import main.GamePanel;
+import main.ImageLoader;
 
 public class TileManager {
 
@@ -25,11 +25,11 @@ public class TileManager {
 
         this.gp = gp;
 
-        tile = new Tile[20];
+        tile = new Tile[43];
         mapTileNum = new int[gp.maxScreenCol][gp.maxScreenRow];
 
         getTileImage();
-        loadMap();
+        loadMap(1);
     }
 
     /*
@@ -120,6 +120,9 @@ public class TileManager {
 
         tile[19] = new Tile();
         tile[19].image = rotateImage(tile[7].image, 270);
+
+        tile[42] = new Tile();
+        tile[42].image = ImageLoader.load("/tiles/Block.png");
     }
 
     /*
@@ -149,9 +152,16 @@ public class TileManager {
      Reads the map rwos into a fresh array and clears the arrows after loading
      succeeds. Spaces separate the tile nmubers.
      */
-    public void loadMap() {
+    public void loadMap(int level) {
+
+        // Build the map filename using the level number.
+        String mapName = "/maps/map0" + level + ".txt";
+
         int[][] freshMap = new int[gp.maxScreenCol][gp.maxScreenRow];
-        InputStream stream = getClass().getResourceAsStream("/maps/map01.txt");
+
+        // Load the map belonging to the selected level.
+        InputStream stream = getClass().getResourceAsStream(mapName);
+        
         if (stream == null) {
             throw new IllegalStateException("Missing map01.txt");
         }
@@ -223,6 +233,10 @@ public class TileManager {
                 BufferedImage arrowImage = arrowTiles.getImage(tileNum, arrows[col][row]);
                 if (arrowImage != null) { image = arrowImage; }
             }
+            if (tileNum == 42) {
+                g2.drawImage(tile[0].image, x, y, gp.tileSize, gp.tileSize, null);
+            }
+
             g2.drawImage(image, x, y, gp.tileSize, gp.tileSize, null);
 
             col++;

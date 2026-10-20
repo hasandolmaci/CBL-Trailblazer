@@ -20,7 +20,12 @@ public class PressurePlate {
         this.x = x;
         this.y = y;
         this.color = color;
-        image = ImageLoader.load("/sprites/colored/plate_" + color + ".png");
+        
+        if (color.equals("blue")) {
+            image = ImageLoader.load("/plates/plate_gold.png");
+        } else {
+            image = ImageLoader.load("/plates/plate_" + color + ".png");
+        }
     }
 
     /*
