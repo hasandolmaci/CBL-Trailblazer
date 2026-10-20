@@ -6,8 +6,10 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -33,6 +35,14 @@ public class Main {
             JPanel menuPanel = new JPanel(new BorderLayout());
             JPanel gameScreen = new JPanel(new BorderLayout());
 
+            gameScreen.setBackground(MenuStyle.background);
+
+            IntroductionPanel introductionPanel = new IntroductionPanel();
+
+            introductionPanel.proceedButton.addActionListener(event -> {
+                cardLayout.show(screens, "MENU");
+            });
+
             gameScreen.add(gamePanel, BorderLayout.CENTER);
 
             JButton moveButton = new JButton("Move blue robot");
@@ -43,11 +53,28 @@ public class Main {
             menuButton.setFocusable(false);
             moveButton.setFocusable(false);
             restartButton.setFocusable(false);
-            JPanel controls = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 8));
+
+            MenuStyle.styleButton(moveButton);
+            MenuStyle.styleButton(restartButton);
+            MenuStyle.styleButton(menuButton);
+            MenuStyle.styleButton(nextButton);
+
+            moveButton.setPreferredSize(new java.awt.Dimension(210, 48));
+            restartButton.setPreferredSize(new java.awt.Dimension(130, 48));
+            menuButton.setPreferredSize(new java.awt.Dimension(130, 48));
+            nextButton.setPreferredSize(new java.awt.Dimension(160, 48));
+
+            JPanel controls = new JPanel(new FlowLayout(FlowLayout.CENTER, 18, 12));
+            controls.setBackground(MenuStyle.background);
+            controls.setBorder(
+                BorderFactory.createEmptyBorder(12, 12, 12, 12)
+            );
+
             controls.add(moveButton);
             controls.add(restartButton);
             controls.add(menuButton);
             controls.add(nextButton);
+
             gameScreen.add(controls, BorderLayout.SOUTH);
 
             /*
@@ -80,13 +107,14 @@ public class Main {
             /*
             * Creates the level-selection buttons and loads the selected level.
             */
-            JPanel levelButtons = new JPanel(new GridLayout(4, 1, 10, 10));
+            JPanel levelButtons = new JPanel(new GridLayout(4, 1, 15, 15));
             JButton[] levels = new JButton[4];
 
             for (int i = 0; i < 4; i++) {
                 int levelNumber = i + 1;
 
                 JButton button = new JButton("Level " + levelNumber);
+                MenuStyle.styleButton(button);
                 levels[i] = button;
                 levelButtons.add(button);
 
@@ -131,16 +159,65 @@ public class Main {
                 }
             });
 
-            menuPanel.add(levelButtons, BorderLayout.CENTER);
+            JLabel title = new JLabel("TRAILBLAZER", JLabel.CENTER);
+            title.setFont(MenuStyle.pixelFont(28));
+            title.setForeground(MenuStyle.gold);
+
+            JButton introductionButton = new JButton("Introduction Screen");
+            JButton exitButton = new JButton("Exit Game");
+            MenuStyle.styleButton(introductionButton);
+            MenuStyle.styleButton(exitButton);
+
+            JPanel topButtons = new JPanel(new GridLayout(1, 2, 10, 0));
+            topButtons.setPreferredSize(new java.awt.Dimension(0, 65));
+            topButtons.add(introductionButton);
+            topButtons.add(exitButton);
+
+            JPanel menuTop = new JPanel(new BorderLayout(10, 35));
+            menuTop.add(title, BorderLayout.NORTH);
+            menuTop.add(topButtons, BorderLayout.SOUTH);
+
+            menuPanel.setBackground(MenuStyle.background);
+            menuTop.setBackground(MenuStyle.background);
+            topButtons.setBackground(MenuStyle.background);
+            levelButtons.setBackground(MenuStyle.background);
+
+            menuPanel.setBorder(
+                BorderFactory.createEmptyBorder(30, 40, 30, 40)
+            );
+
+            menuPanel.add(menuTop, BorderLayout.NORTH);
+
+            JPanel levelContainer = new JPanel(new BorderLayout());
+            levelContainer.setBackground(MenuStyle.background);
+            levelContainer.setBorder(
+                BorderFactory.createEmptyBorder(20, 0, 0, 0)
+            );
+
+            levelButtons.setPreferredSize(new java.awt.Dimension(0, 380));
+            levelContainer.add(levelButtons, BorderLayout.NORTH);
+
+            menuPanel.add(levelContainer, BorderLayout.CENTER);
+
+            introductionButton.addActionListener(event -> {
+                cardLayout.show(screens, "INTRODUCTION");
+            });
+
+            exitButton.addActionListener(event -> {
+                gamePanel.stopGameLoop();
+                window.dispose();
+                System.exit(0);
+            });
 
             /*
             * Registers both screens and displays the menu when the game starts.
             */
+            screens.add(introductionPanel, "INTRODUCTION");
             screens.add(menuPanel, "MENU");
             screens.add(gameScreen, "GAME");
 
             window.add(screens);
-            cardLayout.show(screens, "MENU");
+            cardLayout.show(screens, "INTRODUCTION");
 
             window.pack();
             window.setLocationRelativeTo(null);

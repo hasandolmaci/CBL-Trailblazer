@@ -1,7 +1,7 @@
 package entity;
 
-import main.ImageLoader;
 import main.GamePanel;
+import main.ImageLoader;
 import main.KeyHandler;
 
 public class Player extends Entity {
@@ -38,12 +38,32 @@ public class Player extends Entity {
     public void getPlayerImage() {
         up1 = ImageLoader.load("/player/player_up_1.png");
         up2 = ImageLoader.load("/player/player_up_2.png");
+        up3 = ImageLoader.load("/player/player_up_3.png");
+        up4 = ImageLoader.load("/player/player_up_4.png");
+
         down1 = ImageLoader.load("/player/player_down_1.png");
         down2 = ImageLoader.load("/player/player_down_2.png");
+        down3 = ImageLoader.load("/player/player_down_3.png");
+        down4 = ImageLoader.load("/player/player_down_4.png");
+
         left1 = ImageLoader.load("/player/player_left_1.png");
         left2 = ImageLoader.load("/player/player_left_2.png");
+        left3 = ImageLoader.load("/player/player_left_3.png");
+        left4 = ImageLoader.load("/player/player_left_4.png");
+
         right1 = ImageLoader.load("/player/player_right_1.png");
         right2 = ImageLoader.load("/player/player_right_2.png");
+        right3 = ImageLoader.load("/player/player_right_3.png");
+        right4 = ImageLoader.load("/player/player_right_4.png");
+    }
+
+    public void nextAnimationFrame() {
+
+        spriteNum++;
+
+        if (spriteNum > 4) {
+            spriteNum = 1;
+        }
     }
 
     @Override

@@ -13,12 +13,20 @@ public class Entity {
 
     public BufferedImage up1;
     public BufferedImage up2;
+    public BufferedImage up3;
+    public BufferedImage up4;
     public BufferedImage down1;
     public BufferedImage down2;
+    public BufferedImage down3;
+    public BufferedImage down4;
     public BufferedImage left1;
     public BufferedImage left2;
+    public BufferedImage left3;
+    public BufferedImage left4;
     public BufferedImage right1;
     public BufferedImage right2;
+    public BufferedImage right3;
+    public BufferedImage right4;
     public String direction;
     public int spriteNum = 1;
     public Rectangle solidArea;
@@ -34,7 +42,7 @@ public class Entity {
 
     /*
      Chooses the pciture for the direction this entity is facing. The sprite number
-     selects one of the two walking frames.
+     selects one of the three walking frames.
      */
     public void draw(Graphics2D g2) {
 
@@ -42,16 +50,51 @@ public class Entity {
 
         switch (direction) {
             case "up":
-                image = (spriteNum == 1) ? up1 : up2;
+                if (spriteNum == 1) {
+                    image = up1;
+                } else if (spriteNum == 2) {
+                    image = up2;
+                } else if (spriteNum == 3) {
+                    image = up3;
+                } else if (spriteNum == 4) {
+                    image = up4;
+                }
                 break;
+
             case "down":
-                image = (spriteNum == 1) ? down1 : down2;
+                if (spriteNum == 1) {
+                    image = down1;
+                } else if (spriteNum == 2) {
+                    image = down2;
+                } else if (spriteNum == 3) {
+                    image = down3;
+                } else if (spriteNum ==4) {
+                    image = down4;
+                }
                 break;
+
             case "left":
-                image = (spriteNum == 1) ? left1 : left2;
+                if (spriteNum == 1) {
+                    image = left1;
+                } else if (spriteNum == 2) {
+                    image = left2;
+                } else if (spriteNum == 3) {
+                    image = left3;
+                } else if (spriteNum == 4) {
+                    image = left4;
+                }
                 break;
+
             case "right":
-                image = (spriteNum == 1) ? right1 : right2;
+                if (spriteNum == 1) {
+                    image = right1;
+                } else if (spriteNum == 2) {
+                    image = right2;
+                } else if (spriteNum == 3) {
+                    image = right3;
+                } else if (spriteNum == 4) {
+                    image = right4;
+                }
                 break;
         }
 

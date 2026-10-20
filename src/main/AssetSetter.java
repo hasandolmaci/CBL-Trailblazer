@@ -49,9 +49,11 @@ public class AssetSetter {
                     gp.npc[robotIndex++] = robot;
                 } else if (num >= 36 && num <= 39) {
                     String color = colors[num - 36];
+
                     if (!plateColors.add(color)) {
                         throw new IllegalStateException("Duplicate plate color: " + color);
                     }
+
                     gp.plates.add(new PressurePlate(x, y, color));
                 } else if (num == 40) {
                     if (gp.exit != null) {
@@ -64,11 +66,11 @@ public class AssetSetter {
                     gp.player.y = y;
                     gp.player.direction = "down";
                     gp.player.spriteNum = 1;
-                } else if (num < 0 || num >= 20) {
+                } else if (num < 0 || (num >= 20 && num != 42)) {
                     throw new IllegalStateException("Unknown map number: " + num);
                 }
 
-                if (num >= 20) {
+                if (num >= 20 && num != 42) {
                     int[] floorPattern = {0, 2, 1, 3};
                     int floorIndex = Math.floorMod(col - 1 + Math.floorMod(row - 1, 2), 4);
                     gp.tileM.setTileNum(col, row, floorPattern[floorIndex]);

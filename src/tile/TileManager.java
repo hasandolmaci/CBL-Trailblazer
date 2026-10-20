@@ -6,8 +6,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import main.ImageLoader;
 import main.GamePanel;
+import main.ImageLoader;
 
 public class TileManager {
 
@@ -25,7 +25,7 @@ public class TileManager {
 
         this.gp = gp;
 
-        tile = new Tile[20];
+        tile = new Tile[43];
         mapTileNum = new int[gp.maxScreenCol][gp.maxScreenRow];
 
         getTileImage();
@@ -120,6 +120,9 @@ public class TileManager {
 
         tile[19] = new Tile();
         tile[19].image = rotateImage(tile[7].image, 270);
+
+        tile[42] = new Tile();
+        tile[42].image = ImageLoader.load("/tiles/Block.png");
     }
 
     /*
@@ -230,6 +233,10 @@ public class TileManager {
                 BufferedImage arrowImage = arrowTiles.getImage(tileNum, arrows[col][row]);
                 if (arrowImage != null) { image = arrowImage; }
             }
+            if (tileNum == 42) {
+                g2.drawImage(tile[0].image, x, y, gp.tileSize, gp.tileSize, null);
+            }
+
             g2.drawImage(image, x, y, gp.tileSize, gp.tileSize, null);
 
             col++;

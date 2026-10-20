@@ -163,8 +163,8 @@ public class GamePanel extends JPanel {
         player.x = nextX;
         player.y = nextY;
         player.direction = direction;
-        if (player.spriteNum == 1) { player.spriteNum = 2; }
-        else { player.spriteNum = 1; }
+        player.nextAnimationFrame();
+        
         /*
         * Unlocks the following level when the current level is completed.
         */
@@ -321,8 +321,9 @@ public class GamePanel extends JPanel {
             g2.fillRect(0, 0, screenWidth, screeHeight);
             g2.setColor(Color.WHITE);
             g2.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 36));
-            String title = state == GameState.WON ? "Level complete!" : "Game over";
-            drawCentered(g2, title, 235);
+            if (state == GameState.GAME_OVER) {
+                drawCentered(g2, "Game over", 235);
+            }
             g2.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 16));
             drawCentered(g2, status, 280);
             /*
@@ -343,6 +344,7 @@ public class GamePanel extends JPanel {
      instruction.
      */
     private void drawCentered(Graphics2D graphics, String text, int y) {
+        graphics.setFont(MenuStyle.pixelFont(12));
         int width = graphics.getFontMetrics().stringWidth(text);
         graphics.drawString(text, (screenWidth - width) / 2, y);
     }
