@@ -49,6 +49,8 @@ public class Main {
             JButton restartButton = new JButton("Restart");
             JButton menuButton = new JButton("Menu");
             JButton nextButton = new JButton("Next level");
+            JButton solutionButton = new JButton("Solution");
+            solutionButton.setFocusable(false);
             nextButton.setFocusable(false);
             menuButton.setFocusable(false);
             moveButton.setFocusable(false);
@@ -58,9 +60,11 @@ public class Main {
             MenuStyle.styleButton(restartButton);
             MenuStyle.styleButton(menuButton);
             MenuStyle.styleButton(nextButton);
+            MenuStyle.styleButton(solutionButton);
 
             moveButton.setPreferredSize(new java.awt.Dimension(210, 48));
             restartButton.setPreferredSize(new java.awt.Dimension(130, 48));
+            solutionButton.setPreferredSize(new java.awt.Dimension(130, 48));
             menuButton.setPreferredSize(new java.awt.Dimension(130, 48));
             nextButton.setPreferredSize(new java.awt.Dimension(160, 48));
 
@@ -72,6 +76,7 @@ public class Main {
 
             controls.add(moveButton);
             controls.add(restartButton);
+            controls.add(solutionButton);
             controls.add(menuButton);
             controls.add(nextButton);
 
@@ -85,15 +90,30 @@ public class Main {
                 gamePanel.startBlueRobot();
                 gamePanel.requestFocusInWindow();
             });
-            restartButton.addActionListener(event -> gamePanel.restartLevel());
+
+            restartButton.addActionListener(event -> {
+                gamePanel.restartLevel();
+            });
+
+            solutionButton.addActionListener(event -> {
+                gamePanel.showSolution();
+                gamePanel.requestFocusInWindow();
+            });
+
             gamePanel.setStateListener(() -> {
                 nextButton.setVisible(
                     gamePanel.getGameState() == GameState.WON
                     && gamePanel.currentLevel < gamePanel.totalLevels
                 );
-                window.pack();
+
+                moveButton.setVisible(gamePanel.getGameState() != GameState.WON);
+                solutionButton.setVisible(gamePanel.getGameState() != GameState.WON);
+
                 moveButton.setEnabled(gamePanel.getGameState() == GameState.PLANNING);
+
+                window.pack();
             });
+
             window.addWindowListener(new WindowAdapter() {
                 /*
                  Stops the game timer when the window closes. This keeps updates from

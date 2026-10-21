@@ -184,6 +184,39 @@ public class TileManager {
     }
 
     /*
+    * Reads the solution file and places its arrows on the map.
+    * U, D, L and R represent directions, while . means no arrow.
+    */
+    public void loadSolution(int level) {
+        String fileName = "/solutions/solution0" + level + ".txt";
+        InputStream stream = getClass().getResourceAsStream(fileName);
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+            for (int row = 0; row < gp.maxScreenRow; row++) {
+                String line = reader.readLine();
+                String[] cells = line.trim().split("\\s+");
+
+                for (int col = 0; col < gp.maxScreenCol; col++) {
+                    String direction = null;
+
+                    switch (cells[col]) {
+                        case "U": direction = "up"; break;
+                        case "D": direction = "down"; break;
+                        case "L": direction = "left"; break;
+                        case "R": direction = "right"; break;
+                    }
+
+                    if (direction != null) {
+                        arrows[col][row] = direction;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Cannot read solution file", e);
+        }
+    }
+
+    /*
      Checks whether a pixel position is inside the screen and belongs to a floor
      tile. Dividing by the tile size cnoverts pixels into map coordinates.
      */
@@ -231,7 +264,9 @@ public class TileManager {
             BufferedImage image = tile[tileNum].image;
             if (arrows[col][row] != null) {
                 BufferedImage arrowImage = arrowTiles.getImage(tileNum, arrows[col][row]);
-                if (arrowImage != null) { image = arrowImage; }
+                if (arrowImage != null) { 
+                    image = arrowImage; 
+                }
             }
             if (tileNum == 42) {
                 g2.drawImage(tile[0].image, x, y, gp.tileSize, gp.tileSize, null);
