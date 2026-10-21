@@ -6,8 +6,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import main.ImageLoader;
 import main.GamePanel;
+import main.ImageLoader;
 
 public class TileManager {
 
@@ -25,11 +25,11 @@ public class TileManager {
 
         this.gp = gp;
 
-        tile = new Tile[20];
+        tile = new Tile[43];
         mapTileNum = new int[gp.maxScreenCol][gp.maxScreenRow];
 
         getTileImage();
-        loadMap();
+        loadMap(1);
     }
 
     /*
@@ -120,6 +120,9 @@ public class TileManager {
 
         tile[19] = new Tile();
         tile[19].image = rotateImage(tile[7].image, 270);
+
+        tile[42] = new Tile();
+        tile[42].image = ImageLoader.load("/tiles/Block.png");
     }
 
     /*
@@ -149,9 +152,16 @@ public class TileManager {
      Reads the map rwos into a fresh array and clears the arrows after loading
      succeeds. Spaces separate the tile nmubers.
      */
-    public void loadMap() {
+    public void loadMap(int level) {
+
+        // Build the map filename using the level number.
+        String mapName = "/maps/map0" + level + ".txt";
+
         int[][] freshMap = new int[gp.maxScreenCol][gp.maxScreenRow];
-        InputStream stream = getClass().getResourceAsStream("/maps/map01.txt");
+
+        // Load the map belonging to the selected level.
+        InputStream stream = getClass().getResourceAsStream(mapName);
+        
         if (stream == null) {
             throw new IllegalStateException("Missing map01.txt");
         }
@@ -171,6 +181,39 @@ public class TileManager {
         }
         mapTileNum = freshMap;
         arrows = new String[gp.maxScreenCol][gp.maxScreenRow];
+    }
+
+    /*
+    * Reads the solution file and places its arrows on the map.
+    * U, D, L and R represent directions, while . means no arrow.
+    */
+    public void loadSolution(int level) {
+        String fileName = "/solutions/solution0" + level + ".txt";
+        InputStream stream = getClass().getResourceAsStream(fileName);
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+            for (int row = 0; row < gp.maxScreenRow; row++) {
+                String line = reader.readLine();
+                String[] cells = line.trim().split("\\s+");
+
+                for (int col = 0; col < gp.maxScreenCol; col++) {
+                    String direction = null;
+
+                    switch (cells[col]) {
+                        case "U": direction = "up"; break;
+                        case "D": direction = "down"; break;
+                        case "L": direction = "left"; break;
+                        case "R": direction = "right"; break;
+                    }
+
+                    if (direction != null) {
+                        arrows[col][row] = direction;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Cannot read solution file", e);
+        }
     }
 
     /*
@@ -221,8 +264,14 @@ public class TileManager {
             BufferedImage image = tile[tileNum].image;
             if (arrows[col][row] != null) {
                 BufferedImage arrowImage = arrowTiles.getImage(tileNum, arrows[col][row]);
-                if (arrowImage != null) { image = arrowImage; }
+                if (arrowImage != null) { 
+                    image = arrowImage; 
+                }
             }
+            if (tileNum == 42) {
+                g2.drawImage(tile[0].image, x, y, gp.tileSize, gp.tileSize, null);
+            }
+
             g2.drawImage(image, x, y, gp.tileSize, gp.tileSize, null);
 
             col++;

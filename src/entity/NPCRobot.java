@@ -8,7 +8,7 @@ import main.GameState;
 import main.ImageLoader;
 
 public class NPCRobot extends Entity {
-    public static final long STEP_DURATION_NANOS = 300_000_000L;
+    public static final long STEP_DURATION_NANOS = 350_000_000L;
     public final String color;
     public boolean active;
     public boolean locked;
@@ -19,6 +19,8 @@ public class NPCRobot extends Entity {
     private long stepStarted;
     private double progress;
     private final Set<String> visitedStates = new HashSet<>();
+    private long lastAnimationTime = 0;
+    private int animationStep = 0;
 
     /*
      Creates a robot with its own cloor and starting direction. It loads the matching
@@ -39,12 +41,19 @@ public class NPCRobot extends Entity {
         String folder = "/npc/" + color + "/robot_";
         up1 = ImageLoader.load(folder + "up_1.png");
         up2 = ImageLoader.load(folder + "up_2.png");
+        up3 = ImageLoader.load(folder + "up_3.png");
+
         down1 = ImageLoader.load(folder + "down_1.png");
         down2 = ImageLoader.load(folder + "down_2.png");
+        down3 = ImageLoader.load(folder + "down_3.png");
+
         left1 = ImageLoader.load(folder + "left_1.png");
         left2 = ImageLoader.load(folder + "left_2.png");
+        left3 = ImageLoader.load(folder + "left_3.png");
+
         right1 = ImageLoader.load(folder + "right_1.png");
         right2 = ImageLoader.load(folder + "right_2.png");
+        right3 = ImageLoader.load(folder + "right_3.png");
     }
 
     /*
@@ -67,30 +76,38 @@ public class NPCRobot extends Entity {
         if (!firstMove) {
             String arrow = gp.tileM.getArrowDirection(x / gp.tileSize, y / gp.tileSize);
             if (arrow == null) {
-                gp.gameOver(color + " robot reached the end of its arrow path.");
+                gp.gameOver(color.substring(0, 1).toUpperCase() 
+                    + color.substring(1) + " robot reached the end of its arrow path.");
                 return;
             }
             direction = arrow;
             String state = x + "," + y + "," + direction;
-            if (!visitedStates.add(state)) {
-                gp.gameOver(color + " robot entered an endless arrow loop.");
-                return;
-            }
+            // if (!visitedStates.add(state)) {
+            //     gp.gameOver(color.substring(0, 1).toUpperCase() 
+            //         + color.substring(1) + " robot entered an endless arrow loop.");
+            //     return;
+            // }
         }
 
         targetX = x;
         targetY = y;
         switch (direction) {
-            case "up": targetY -= gp.tileSize; break;
-            case "down": targetY += gp.tileSize; break;
-            case "left": targetX -= gp.tileSize; break;
-            case "right": targetX += gp.tileSize; break;
-            default: gp.gameOver("Unknown robot direction: " + direction); return;
-        }
-        if (!gp.tileM.canMoveTo(targetX, targetY) || gp.isExitAt(targetX, targetY)) {
-            gp.gameOver(color + " robot hit a wall or the exit.");
+            case "up": targetY -= gp.tileSize; 
+            break;
+            case "down": targetY += gp.tileSize; 
+            break;
+            case "left": targetX -= gp.tileSize; 
+            break;
+            case "right": targetX += gp.tileSize; 
+            break;
+            default: gp.gameOver("Unknown robot direction: " + direction); 
             return;
         }
+        // if (!gp.tileM.canMoveTo(targetX, targetY) || gp.isExitAt(targetX, targetY)) {
+        //     gp.gameOver(color.substring(0, 1).toUpperCase() 
+        //         + color.substring(1) + " robot hit a wall or the exit.");
+        //     return;
+        // }
         if (gp.isPlayerAt(targetX, targetY)) {
             gp.gameOver(color + " robot collided with the player.");
             return;
@@ -114,10 +131,25 @@ public class NPCRobot extends Entity {
         }
         progress = Math.min(1.0, Math.max(0.0,
             (double) (now - stepStarted) / STEP_DURATION_NANOS));
-        if (progress < 0.5) {
-            spriteNum = 1;
-        } else {
-            spriteNum = 2;
+
+        if (now - lastAnimationTime >= 200_000_000L) {
+            lastAnimationTime = now;
+            animationStep++;
+
+            if (animationStep > 3) {
+                animationStep = 0;
+            }
+
+            if (animationStep == 0 || animationStep == 2) {
+                spriteNum = 1;
+            }
+            else if (animationStep == 1) {
+                spriteNum = 2;
+            }
+            else if (animationStep == 3) {
+                spriteNum = 3;
+            }
+        
         }
         if (progress < 1.0) {
             return;

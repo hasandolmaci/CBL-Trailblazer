@@ -20,11 +20,16 @@ import javax.swing.Timer;
 import tile.TileManager;
 
 public class GamePanel extends JPanel {
-    public final int tileSize = 48;
-    public final int maxScreenCol = 16;
-    public final int maxScreenRow = 12;
+    public final int tileSize = 72;
+    public final int maxScreenCol = 10;
+    public final int maxScreenRow = 8;
     public final int screenWidth = tileSize * maxScreenCol;
     public final int screeHeight = tileSize * maxScreenRow;
+    
+    public int currentLevel = 1;
+    public final int totalLevels = 4;
+    public int highestUnlockedLevel = 1;
+    public boolean inMenu = true;
 
     public final TileManager tileM = new TileManager(this);
     final KeyHandler keyH = new KeyHandler();
@@ -54,7 +59,9 @@ public class GamePanel extends JPanel {
              prevents a saved key press from being carried over after siwtching
              windows.
              */
-            @Override public void focusLost(FocusEvent event) { keyH.clear(); }
+            @Override public void focusLost(FocusEvent event) { 
+                keyH.clear(); 
+            }
         });
         assetSetter.setAssets();
         setState(GameState.PLANNING, "");
@@ -81,22 +88,34 @@ public class GamePanel extends JPanel {
      Returns the current game phase. Other calsses use it to decide whether the
      player can plan paths, robots can move, or the level has ended.
      */
-    public GameState getGameState() { return state; }
+    public GameState getGameState() { 
+        return state; 
+    }
     /*
      Returns the msesage for the current phase. The window displays it when there is
      something to show.
      */
-    public String getStatus() { return status; }
+
+    public String getStatus() { 
+        return status; 
+    }
     /*
      Allows player movement druing planning and after all robots have parked.
      */
-    public boolean canPlayerMove() { return state == GameState.PLANNING || state == GameState.EXIT_READY; }
+
+    public boolean canPlayerMove() { 
+        return state == GameState.PLANNING || state == GameState.EXIT_READY; 
+    }
     /*
      Stores the action that refreshes the window controls when the gmae phase
      changes. It runs that action immediately as well, so the buttons and status
      start with the correct apeparance.
      */
-    public void setStateListener(Runnable listener) { stateListener = listener; listener.run(); }
+
+    public void setStateListener(Runnable listener) { 
+        stateListener = listener; 
+        listener.run();
+    }
 
     /*
      Changes the game phase and its message together. It also clears pending keyboard
@@ -111,10 +130,13 @@ public class GamePanel extends JPanel {
     }
 
     /*
-     Runs one game update. It handles player input only when movement is allowed,
-     ohterwise it clears that input.
-     */
+    * Updates player and robot movement when gameplay is active.
+    * Pauses updates while the menu is displayed.
+    */
     public void update(long now) {
+        if (inMenu) {
+            return;
+        }
         if (canPlayerMove()) {
             player.update();
         } else {
@@ -135,14 +157,20 @@ public class GamePanel extends JPanel {
      palnning move leaves an arrow behind and alternates the walking picture.
      */
     public boolean tryMovePlayer(String direction) {
-        if (!canPlayerMove()) { return false; }
+        if (!canPlayerMove()) { 
+            return false; 
+        }
         int nextX = player.x;
         int nextY = player.y;
         switch (direction) {
-            case "up": nextY -= tileSize; break;
-            case "down": nextY += tileSize; break;
-            case "left": nextX -= tileSize; break;
-            case "right": nextX += tileSize; break;
+            case "up": nextY -= tileSize; 
+            break;
+            case "down": nextY += tileSize; 
+            break;
+            case "left": nextX -= tileSize; 
+            break;
+            case "right": nextX += tileSize; 
+            break;
             default: return false;
         }
         if (!tileM.canMoveTo(nextX, nextY) || robotAt(nextX, nextY, null) != null
@@ -155,10 +183,18 @@ public class GamePanel extends JPanel {
         player.x = nextX;
         player.y = nextY;
         player.direction = direction;
-        if (player.spriteNum == 1) { player.spriteNum = 2; }
-        else { player.spriteNum = 1; }
+        player.nextAnimationFrame();
+        
+        /*
+        * Unlocks the following level when the current level is completed.
+        */
         if (state == GameState.EXIT_READY && isExitAt(nextX, nextY)) {
-            setState(GameState.WON, "Level complete! Choose Restart to play again.");
+            if (currentLevel < totalLevels) {
+                if (currentLevel + 1 > highestUnlockedLevel) {
+                    highestUnlockedLevel = currentLevel + 1;
+                }
+            }
+            setState(GameState.WON, "Level " + currentLevel + " complete!");
         }
         return true;
     }
@@ -168,14 +204,18 @@ public class GamePanel extends JPanel {
      other version accepts a time directly, allowing movement checks to use
      perdictable timing.
      */
-    public void startBlueRobot() { startBlueRobot(System.nanoTime()); }
+    public void startBlueRobot() { 
+        startBlueRobot(System.nanoTime()); 
+    }
 
     /*
      Starts the blue robot chain from the planning phase. It locks player movement
      before activating bule.
      */
     public void startBlueRobot(long now) {
-        if (state != GameState.PLANNING) { return; }
+        if (state != GameState.PLANNING) { 
+            return; 
+        }
         setState(GameState.RUNNING, "Robots running. Player movement is locked.");
         activateRobot("blue", now);
     }
@@ -208,7 +248,9 @@ public class GamePanel extends JPanel {
     public void robotReachedPlate(PressurePlate plate, long now) {
         boolean allPlates = true;
         for (PressurePlate item : plates) {
-            if (!item.activated) { allPlates = false; }
+            if (!item.activated) { 
+                allPlates = false; 
+            }
         }
         exit.unlocked = allPlates;
         boolean allRobots = true;
@@ -243,7 +285,9 @@ public class GamePanel extends JPanel {
      */
     public PressurePlate getPlateAt(int x, int y) {
         for (PressurePlate plate : plates) {
-            if (plate.x == x && plate.y == y) { return plate; }
+            if (plate.x == x && plate.y == y) { 
+                return plate; 
+            }
         }
         return null;
     }
@@ -251,12 +295,17 @@ public class GamePanel extends JPanel {
     /*
      Checks wehther the supplied pixel position matches the exit.
      */
-    public boolean isExitAt(int x, int y) { return exit != null && exit.x == x && exit.y == y; }
+    public boolean isExitAt(int x, int y) { 
+        return exit != null && exit.x == x && exit.y == y; 
+    }
     /*
      Checks whether the player occupies the supplied pixel psoition. A robot uses
      this before starting its next step to detect a collision with the locked player.
      */
-    public boolean isPlayerAt(int x, int y) { return player.x == x && player.y == y; }
+
+    public boolean isPlayerAt(int x, int y) { 
+        return player.x == x && player.y == y; 
+    }
 
     /*
      Ends an active rboot run and saves the reason for the game over screen.
@@ -268,14 +317,32 @@ public class GamePanel extends JPanel {
     }
 
     /*
-     Loads the original map again and rebuilds its etnities. This clears arrows,
-     resets robots and plates, and locks the exit.
+     * Loads the selected level and resets its map, entities and game state.
      */
-    public void restartLevel() {
-        tileM.loadMap();
+    public void loadLevel(int level) {
+        currentLevel = level;
+        tileM.loadMap(currentLevel);
         assetSetter.setAssets();
         setState(GameState.PLANNING, "");
         requestFocusInWindow();
+    }
+
+    /*
+    * Restarts the level and places the saved solution arrows.
+    * The robots only move when the player presses Move blue robot.
+    */
+    public void showSolution() {
+        restartLevel();
+        tileM.loadSolution(currentLevel);
+        requestFocusInWindow();
+        repaint();
+    }
+
+    /*
+    * Restarts the currently selected level.
+    */
+    public void restartLevel() {
+        loadLevel(currentLevel);
     }
 
     @Override
@@ -290,19 +357,35 @@ public class GamePanel extends JPanel {
                             RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
         tileM.draw(g2);
         exit.draw(g2, tileSize);
-        for (PressurePlate plate : plates) { plate.draw(g2, tileSize); }
-        for (Entity entity : npc) { if (entity != null) { entity.draw(g2); } }
+        for (PressurePlate plate : plates) { 
+            plate.draw(g2, tileSize); 
+        }
+
+        for (Entity entity : npc) { 
+            if (entity != null) { 
+                entity.draw(g2); 
+            } 
+        }
+
         player.draw(g2);
         if (state == GameState.GAME_OVER || state == GameState.WON) {
             g2.setColor(new Color(12, 20, 28, 220));
             g2.fillRect(0, 0, screenWidth, screeHeight);
             g2.setColor(Color.WHITE);
             g2.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 36));
-            String title = state == GameState.WON ? "Level complete!" : "Game over";
-            drawCentered(g2, title, 235);
+            if (state == GameState.GAME_OVER) {
+                drawCentered(g2, "Game over", 235);
+            }
             g2.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 16));
             drawCentered(g2, status, 280);
-            drawCentered(g2, "Use Restart below to restore the original level.", 320);
+            /*
+            * Displays the available options after winning or losing.
+            */
+            if (state == GameState.WON) {
+                drawCentered(g2, "Choose Next level or Menu below.", 320);
+            } else {
+                drawCentered(g2, "Choose Restart or Menu below.", 320);
+            }
         }
         g2.dispose();
     }
@@ -313,6 +396,7 @@ public class GamePanel extends JPanel {
      instruction.
      */
     private void drawCentered(Graphics2D graphics, String text, int y) {
+        graphics.setFont(MenuStyle.pixelFont(12));
         int width = graphics.getFontMetrics().stringWidth(text);
         graphics.drawString(text, (screenWidth - width) / 2, y);
     }
