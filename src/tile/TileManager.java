@@ -18,9 +18,8 @@ public class TileManager {
     private final ArrowTiles arrowTiles = new ArrowTiles();
 
     /*
-     Creates storage for the map tiles and loads the folor and wall pictures. It then
-     reads the starting map.
-     */
+    Creates the map storage and loads the starting level.
+    */
     public TileManager(GamePanel gp) {
 
         this.gp = gp;
@@ -33,28 +32,25 @@ public class TileManager {
     }
 
     /*
-     Returns the number stored at a map column and row. These are gird positions
-     rather than pixels.
-     */
+    Returns the tile number at a map position.
+    */
     public int getTileNum(int col, int row) {
         return mapTileNum[col][row];
     }
 
     /*
-     Changes one map cell in memory. The setup code uses this after raeding an entity
-     marker, replacing it with the floor underneath.
-     */
+    Changes the tile number at a map position.
+    */
     public void setTileNum(int col, int row, int num) {
         mapTileNum[col][row] = num;
     }
 
     /*
-     Loads the floor textures and the original wall and croner pictures. It rotates
-     the wall pictures to create the other sides of the room.
-     */
+    Loads the floor, wall, corner and block sprites.
+    */
     public void getTileImage() {
 
-
+        //Original sprites
         tile[0] = new Tile();
         tile[0].image = ImageLoader.load("/tiles/Floor1.png");
 
@@ -79,7 +75,7 @@ public class TileManager {
         tile[7] = new Tile();
         tile[7].image = ImageLoader.load("/tiles/Corner2.png");
 
-
+        //Rotated wall tiles
         tile[8] = new Tile();
         tile[8].image = rotateImage(tile[4].image, 90);
 
@@ -100,7 +96,7 @@ public class TileManager {
         tile[13] = new Tile();
         tile[13].image = rotateImage(tile[5].image, 270);
 
-
+        //Rotated corenr tiles
         tile[14] = new Tile();
         tile[14].image = rotateImage(tile[6].image, 90);
 
@@ -121,14 +117,14 @@ public class TileManager {
         tile[19] = new Tile();
         tile[19].image = rotateImage(tile[7].image, 270);
 
+        //Block tile
         tile[42] = new Tile();
         tile[42].image = ImageLoader.load("/tiles/Block.png");
     }
 
     /*
-     Makes a new image and darws the original into it at the requested angle.
-     Rotating around the center keeps the wall inside the tile.
-     */
+    Rotates a tile image by the given angle.
+    */
     public BufferedImage rotateImage(BufferedImage image, int angle) {
 
         BufferedImage rotatedImage =
@@ -149,43 +145,37 @@ public class TileManager {
     }
 
     /*
-     Reads the map rwos into a fresh array and clears the arrows after loading
-     succeeds. Spaces separate the tile nmubers.
-     */
+    Loads the selected map and clears existing arrows.
+    */
     public void loadMap(int level) {
 
-        // Build the map filename using the level number.
         String mapName = "/maps/map0" + level + ".txt";
 
         int[][] freshMap = new int[gp.maxScreenCol][gp.maxScreenRow];
 
-        // Load the map belonging to the selected level.
         InputStream stream = getClass().getResourceAsStream(mapName);
         
         if (stream == null) {
-            throw new IllegalStateException("Missing map01.txt");
+            throw new IllegalStateException("Missing map0" + level + ".txt");
         }
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
             for (int row = 0; row < gp.maxScreenRow; row++) {
                 String line = reader.readLine();
                 String[] numbers = line == null ? new String[0] : line.trim().split("\\s+");
-                if (numbers.length != gp.maxScreenCol) {
-                    throw new IllegalStateException("Each map row needs " + gp.maxScreenCol + " numbers. Check row " + (row + 1));
-                }
+                
                 for (int col = 0; col < gp.maxScreenCol; col++) {
                     freshMap[col][row] = Integer.parseInt(numbers[col]);
                 }
             }
         } catch (IOException | NumberFormatException e) {
-            throw new IllegalStateException("Cannot read map01.txt", e);
+            throw new IllegalStateException("Cannot read map0" + level + ".txt", e);
         }
         mapTileNum = freshMap;
         arrows = new String[gp.maxScreenCol][gp.maxScreenRow];
     }
 
     /*
-    * Reads the solution file and places its arrows on the map.
-    * U, D, L and R represent directions, while . means no arrow.
+    Reads the saved solution and places its arrows.
     */
     public void loadSolution(int level) {
         String fileName = "/solutions/solution0" + level + ".txt";
@@ -217,9 +207,8 @@ public class TileManager {
     }
 
     /*
-     Checks whether a pixel position is inside the screen and belongs to a floor
-     tile. Dividing by the tile size cnoverts pixels into map coordinates.
-     */
+    Checks whether a position contains a walkable tile.
+    */
     public boolean canMoveTo(int x, int y) {
         if (x < 0 || y < 0 || x >= gp.screenWidth || y >= gp.screeHeight) {
             return false;
@@ -229,9 +218,8 @@ public class TileManager {
     }
 
     /*
-     Converts a pixel position into a map column and row, then saves the driection
-     there if it is floor. The arrow stays in memory.
-     */
+    Places an arrow on a floor tile.
+    */
     public void placeArrow(int x, int y, String direction) {
         if (canMoveTo(x, y)) {
             arrows[x / gp.tileSize][y / gp.tileSize] = direction;
@@ -239,17 +227,15 @@ public class TileManager {
     }
 
     /*
-     Returns the direction saved at a grid position. A tile wtihout an arrow returns
-     null.
-     */
+    Returns the arrow direction at a map position.
+    */
     public String getArrowDirection(int col, int row) {
         return arrows[col][row];
     }
 
     /*
-     Walks across each row of the map and draws its floor or wall picture. If a clel
-     has an arrow, it uses the matching arrow picture instead.
-     */
+    Draws the map tiles and any placed arrows.
+    */
     public void draw(Graphics2D g2) {
 
         int col = 0;

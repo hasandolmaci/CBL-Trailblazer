@@ -1,19 +1,19 @@
 Welcome to TrailBlazer!
 
 
-TrailBlazer is a turn-based puzzle game where you guide robots through a series of rooms to unlock the exit and complete each level.
+TrailBlazer is a puzzle game where you set paths for robots in a series of rooms to unlock the exit and complete the levels. 
 
 
-As you move around the room, every tile you leave behind turns into an arrow pointing in the direction you moved. These arrows create paths that the robots will follow once they start moving. You can change an arrow's direction simply by walking over that tile again.
+Every tile you move leaves amd arrow behind it in the direction you moved. The robots will then follow these paths once they are set in motion. You can always change the direction of an arrow by walking over that tile again.
 
 
-Each robot has its own colour, and there are matching pressure plates scattered around the room. When a robot reaches a pressure plate, it stops there and activates it. Robots can also activate plates of different colours, so planning the order in which they move is important.
+Each robot is set in motion by the pressure plate with a matching colour. The exception is the blue robot which is activated by the button at the bottom of the screen. When a robot reaches a pressure plate, it stops and activates the next robot in a chain reaction.
 
 
-Your goal is to create a chain reaction. By guiding the first robot onto a pressure plate, you can trigger the next robot to start moving, which can then activate another plate, and so on.
+Your goal is to create the correct chain reaction of robots so that every robot reaches a pressure plate. Only robots can activate pressure plates with the golden pressure plate being the last one activated.
 
 
-Once all the required pressure plates have been activated, the exit unlocks. Reach the exit with your character to complete the level and move on to the next puzzle.
+Once all the pressure plates have been activated, the exit unlocks. Use your character to reach the exit and complete the level.
 
 
 Good luck!

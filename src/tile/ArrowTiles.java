@@ -7,9 +7,8 @@ public class ArrowTiles {
     private final BufferedImage[][] images = new BufferedImage[4][4];
 
     /*
-     Loads all sixteen arrow pictures once. The outer loop selects a floor texture
-     and the inenr loop selects a direction.
-     */
+    Loads the arrow sprites for each floor and direction.
+    */
     public ArrowTiles() {
         String[] directions = {"right", "down", "left", "up"};
         for (int floor = 0; floor < 4; floor++) {
@@ -22,9 +21,8 @@ public class ArrowTiles {
     }
 
     /*
-     Returns the arrow picture matching the floor number and direction. The floor
-     sleects a row in the image array and the direction selects a column.
-     */
+    Returns the arrow sprite matching the floor and direction.
+    */
     public BufferedImage getImage(int floor, String direction) {
         switch (direction) {
             case "right": return images[floor][0];

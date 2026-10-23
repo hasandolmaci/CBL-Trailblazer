@@ -2,6 +2,7 @@ package main;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
@@ -14,19 +15,19 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 public class Main {
+
     /*
-     Creates the game window, sattus label and control buttons on the Swing event
-     thread. The buttons start the blue robot or restart the lveel.
-     */
+    Creates the game window, menus and buttons.
+    */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
+
+            // Create the main window.
             JFrame window = new JFrame("TrailBlazer");
             window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             window.setResizable(false);
 
-            /*
-            * Creates separate menu and gameplay screens within the same window.
-            */
+            // Set up the introduction, menu and game screens.
             GamePanel gamePanel = new GamePanel();
 
             CardLayout cardLayout = new CardLayout();
@@ -45,6 +46,7 @@ public class Main {
 
             gameScreen.add(gamePanel, BorderLayout.CENTER);
 
+            // Create and style the gameplay buttons.
             JButton moveButton = new JButton("Move blue robot");
             JButton restartButton = new JButton("Restart");
             JButton menuButton = new JButton("Menu");
@@ -62,11 +64,11 @@ public class Main {
             MenuStyle.styleButton(nextButton);
             MenuStyle.styleButton(solutionButton);
 
-            moveButton.setPreferredSize(new java.awt.Dimension(210, 48));
-            restartButton.setPreferredSize(new java.awt.Dimension(130, 48));
-            solutionButton.setPreferredSize(new java.awt.Dimension(130, 48));
-            menuButton.setPreferredSize(new java.awt.Dimension(130, 48));
-            nextButton.setPreferredSize(new java.awt.Dimension(160, 48));
+            moveButton.setPreferredSize(new Dimension(210, 48));
+            restartButton.setPreferredSize(new Dimension(130, 48));
+            solutionButton.setPreferredSize(new Dimension(130, 48));
+            menuButton.setPreferredSize(new Dimension(130, 48));
+            nextButton.setPreferredSize(new Dimension(160, 48));
 
             JPanel controls = new JPanel(new FlowLayout(FlowLayout.CENTER, 18, 12));
             controls.setBackground(MenuStyle.background);
@@ -82,10 +84,7 @@ public class Main {
 
             gameScreen.add(controls, BorderLayout.SOUTH);
 
-            /*
-            * Disables level buttons that have not been unlocked yet.
-            */
-
+            // Set up the gameplay button actions.
             moveButton.addActionListener(event -> {
                 gamePanel.startBlueRobot();
                 gamePanel.requestFocusInWindow();
@@ -100,6 +99,7 @@ public class Main {
                 gamePanel.requestFocusInWindow();
             });
 
+            // Update the buttons when the game state changes.
             gamePanel.setStateListener(() -> {
                 nextButton.setVisible(
                     gamePanel.getGameState() == GameState.WON
@@ -124,13 +124,11 @@ public class Main {
                 }
             });
 
-            /*
-            * Creates the level-selection buttons and loads the selected level.
-            */
+            // Create the level selection buttons.
             JPanel levelButtons = new JPanel(new GridLayout(4, 1, 15, 15));
-            JButton[] levels = new JButton[4];
+            JButton[] levels = new JButton[gamePanel.totalLevels];
 
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < gamePanel.totalLevels; i++) {
                 int levelNumber = i + 1;
 
                 JButton button = new JButton("Level " + levelNumber);
@@ -148,9 +146,7 @@ public class Main {
                 });
             }
 
-            /*
-            * Refreshes unlocked levels and returns to the menu.
-            */
+            // Return to the menu and update unlocked levels.
             menuButton.addActionListener(event -> {
                 gamePanel.inMenu = true;
 
@@ -169,9 +165,6 @@ public class Main {
                 cardLayout.show(screens, "MENU");
             });
 
-            /*
-            * Loads the next level after successfully completing the current one.
-            */
             nextButton.addActionListener(event -> {
                 if (gamePanel.getGameState() == GameState.WON
                         && gamePanel.currentLevel < gamePanel.totalLevels) {
@@ -183,6 +176,7 @@ public class Main {
             title.setFont(MenuStyle.pixelFont(28));
             title.setForeground(MenuStyle.gold);
 
+            // Create the main menu layout.
             JButton introductionButton = new JButton("Introduction Screen");
             JButton exitButton = new JButton("Exit Game");
             MenuStyle.styleButton(introductionButton);
@@ -229,9 +223,7 @@ public class Main {
                 System.exit(0);
             });
 
-            /*
-            * Registers both screens and displays the menu when the game starts.
-            */
+            // Add the screens and open the game window.
             screens.add(introductionPanel, "INTRODUCTION");
             screens.add(menuPanel, "MENU");
             screens.add(gameScreen, "GAME");

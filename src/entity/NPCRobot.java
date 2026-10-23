@@ -1,8 +1,6 @@
 package entity;
 
 import java.awt.Graphics2D;
-import java.util.HashSet;
-import java.util.Set;
 import main.GamePanel;
 import main.GameState;
 import main.ImageLoader;
@@ -18,14 +16,12 @@ public class NPCRobot extends Entity {
     private int targetY;
     private long stepStarted;
     private double progress;
-    private final Set<String> visitedStates = new HashSet<>();
     private long lastAnimationTime = 0;
     private int animationStep = 0;
 
     /*
-     Creates a robot with its own cloor and starting direction. It loads the matching
-     walking pictures, while the map loader sets its psoition.
-     */
+    Creates a robot with its color and starting direction.
+    */
     public NPCRobot(GamePanel gp, String color, String direction) {
         super(gp);
         this.color = color;
@@ -34,9 +30,8 @@ public class NPCRobot extends Entity {
     }
 
     /*
-     Loads the eight walking images from the folder for this robot color. Each
-     direction has two frames.
-     */
+    Loads the three animation frames for each direction.
+    */
     public void getImage(String color) {
         String folder = "/npc/" + color + "/robot_";
         up1 = ImageLoader.load(folder + "up_1.png");
@@ -57,9 +52,8 @@ public class NPCRobot extends Entity {
     }
 
     /*
-     Starts tihs robot only while the robot phase is running. A robot that is already
-     moving or parked cannot start again.
-     */
+    Starts the robot if it is not already moving or locked.
+    */
     public void activate(long now) {
         if (active || locked || gp.getGameState() != GameState.RUNNING) {
             return;
@@ -69,9 +63,8 @@ public class NPCRobot extends Entity {
     }
 
     /*
-     Chooses the nxet tile and checks whether the robot can enter it. The first step
-     uses its starting direction, ltaer steps use arrows.
-     */
+    Finds the next tile and checks for collisions.
+    */
     private void beginStep(long now) {
         if (!firstMove) {
             String arrow = gp.tileM.getArrowDirection(x / gp.tileSize, y / gp.tileSize);
@@ -81,12 +74,6 @@ public class NPCRobot extends Entity {
                 return;
             }
             direction = arrow;
-            String state = x + "," + y + "," + direction;
-            // if (!visitedStates.add(state)) {
-            //     gp.gameOver(color.substring(0, 1).toUpperCase() 
-            //         + color.substring(1) + " robot entered an endless arrow loop.");
-            //     return;
-            // }
         }
 
         targetX = x;
@@ -100,18 +87,13 @@ public class NPCRobot extends Entity {
             break;
             case "right": targetX += gp.tileSize; 
             break;
-            default: gp.gameOver("Unknown robot direction: " + direction); 
-            return;
         }
-        // if (!gp.tileM.canMoveTo(targetX, targetY) || gp.isExitAt(targetX, targetY)) {
-        //     gp.gameOver(color.substring(0, 1).toUpperCase() 
-        //         + color.substring(1) + " robot hit a wall or the exit.");
-        //     return;
-        // }
+
         if (gp.isPlayerAt(targetX, targetY)) {
             gp.gameOver(color + " robot collided with the player.");
             return;
         }
+        
         if (gp.robotAt(targetX, targetY, this) != null) {
             gp.gameOver(color + " robot collided with another robot.");
             return;
@@ -122,9 +104,8 @@ public class NPCRobot extends Entity {
     }
 
     /*
-     Works out how far the robot has moved between two tiles using elapsed time. Once
-     it raeches the destination, it checks for a pressure plate.
-     */
+    Updates the robot's movement, animation and pressure plate activation.
+    */
     public void updateMovement(long now) {
         if (!active || locked || !stepping || gp.getGameState() != GameState.RUNNING) {
             return;
@@ -142,11 +123,9 @@ public class NPCRobot extends Entity {
 
             if (animationStep == 0 || animationStep == 2) {
                 spriteNum = 1;
-            }
-            else if (animationStep == 1) {
+            } else if (animationStep == 1) {
                 spriteNum = 2;
-            }
-            else if (animationStep == 3) {
+            } else if (animationStep == 3) {
                 spriteNum = 3;
             }
         
@@ -171,11 +150,10 @@ public class NPCRobot extends Entity {
         }
     }
 
-    @Override
     /*
-     Draws the robot between its current tile and its destination wihle a step is
-     happening. The actual tile position changes only when the step finishes.
-     */
+    Draws the robot between tiles while it is moving.
+    */
+    @Override
     public void draw(Graphics2D graphics) {
         Graphics2D copy = (Graphics2D) graphics.create();
         if (stepping) {

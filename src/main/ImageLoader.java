@@ -7,15 +7,13 @@ import javax.imageio.ImageIO;
 
 public final class ImageLoader {
     /*
-     Prevents cerating an object just to load a picture. Other classes call the
-     shared load method directly, since tihs helper has no separate state to store.
-     */
+    Prevents creating ImageLoader objects.
+    */
     private ImageLoader() {}
 
     /*
-     Opens one image from the resource folders and returns it ready for darwing. The
-     stream closes automatically.
-     */
+    Loads an image from the resource folder.
+    */
     public static BufferedImage load(String path) {
         try (InputStream stream = ImageLoader.class.getResourceAsStream(path)) {
             if (stream == null) {

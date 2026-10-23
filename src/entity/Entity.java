@@ -32,16 +32,15 @@ public class Entity {
     public Rectangle solidArea;
 
     /*
-     Stores the game panel so the player and robots can use the smae tile size and
-     game rules. It also makes a square collision area matching one tile.
-     */
+    Stores the game panel and creates the collision area.
+    */
     public Entity(GamePanel gp) {
         this.gp = gp;
         solidArea = new Rectangle(0, 0, gp.tileSize, gp.tileSize);
     }
 
     /*
-     Chooses the pciture for the direction this entity is facing. The sprite number
+     Chooses the piture for the direction this entity is facing. The sprite number
      selects one of the three walking frames.
      */
     public void draw(Graphics2D g2) {
@@ -68,7 +67,7 @@ public class Entity {
                     image = down2;
                 } else if (spriteNum == 3) {
                     image = down3;
-                } else if (spriteNum ==4) {
+                } else if (spriteNum == 4) {
                     image = down4;
                 }
                 break;
@@ -104,16 +103,8 @@ public class Entity {
     }
 
     /*
-     Leaves a palce for child classes to define their own update behaviour. The
-     player replaces this method with keyboard mvoement.
-     */
+    Allows child classes to define their own movement.
+    */
     public void update() {
-    }
-
-    /*
-     This empty method is left from the earlier movement code. It currently does
-     nothing.
-     */
-    public void startMoving() {
     }
 }

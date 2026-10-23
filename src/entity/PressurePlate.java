@@ -13,9 +13,8 @@ public class PressurePlate {
     private final BufferedImage image;
 
     /*
-     Stores the plate color and pixel position taken from the map. It loads the
-     matching plate pciture.
-     */
+    Stores the plate position, color and matching sprite.
+    */
     public PressurePlate(int x, int y, String color) {
         this.x = x;
         this.y = y;
@@ -29,9 +28,8 @@ public class PressurePlate {
     }
 
     /*
-     Draws the plate at its map position. When a robot has activated it, a light
-     border is added so its state is vsiible.
-     */
+    Draws the plate and highlights it when activated.
+    */
     public void draw(Graphics2D graphics, int tileSize) {
         graphics.drawImage(image, x, y, tileSize, tileSize, null);
         if (activated) {

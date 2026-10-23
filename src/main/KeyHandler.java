@@ -3,7 +3,7 @@ package main;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-public class KeyHandler implements KeyListener{
+public class KeyHandler implements KeyListener {
 
     public boolean upPressed;
     public boolean downPressed;
@@ -11,10 +11,8 @@ public class KeyHandler implements KeyListener{
     public boolean rightPressed;
 
     /*
-     Resets all four saved movement requests. The game uses this after cnosuming a
-     move and when changing phases, so an old key press does not unexpectedly move
-     the player later.
-     */
+    Clears all saved movement keys.
+    */
     public void clear() {
         upPressed = false;
         downPressed = false;
@@ -22,20 +20,17 @@ public class KeyHandler implements KeyListener{
         rightPressed = false;
     }
 
-    @Override
     /*
-     Does not hnadle typed characters because movement uses key press events instead.
-     This method is still present bceause the keyboard listener interface requires
-     it.
-     */
+    Required by KeyListener but not used for movement.
+    */
+    @Override
     public void keyTyped(KeyEvent e) {
     }
 
-    @Override
     /*
-     Checks whether the pressed key is an arrow key or its mtaching WASD key. It
-     marks that direction as requested.
-     */
+    Detects arrow keys and WASD movement.
+    */
+    @Override
     public void keyPressed(KeyEvent e) {
 
         int code = e.getKeyCode();
@@ -55,11 +50,10 @@ public class KeyHandler implements KeyListener{
 
     }
 
-    @Override
     /*
-     Clears the flag for a released movement key. Both WASD and the arorw keys use
-     the same four flags, so either keyboard layout can control the player.
-     */
+    Clears movement keys when they are released.
+    */
+    @Override
     public void keyReleased(KeyEvent e) {
 
         int code = e.getKeyCode();

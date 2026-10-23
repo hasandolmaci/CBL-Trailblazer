@@ -12,18 +12,16 @@ public class Exit {
     private final BufferedImage open = ImageLoader.load("/tiles/exit_open.png");
 
     /*
-     Stores the exit psoition from the map. Its two pictures are loaded when the
-     object is created, and it starts locked.
-     */
+    Stores the exit position and starts with the exit locked.
+    */
     public Exit(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
     /*
-     Chooses the colsed or open exit picture from its current state and draws it at
-     the stored position.
-     */
+    Draws the locked or unlocked exit sprite.
+    */
     public void draw(Graphics2D graphics, int tileSize) {
         BufferedImage image = closed;
         if (unlocked) {

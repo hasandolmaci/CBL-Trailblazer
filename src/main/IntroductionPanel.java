@@ -1,7 +1,8 @@
 package main;
 
 import java.awt.BorderLayout;
-import java.awt.Font;
+import java.awt.Dimension;
+import java.awt.Insets;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,6 +17,10 @@ public class IntroductionPanel extends JPanel {
 
     public JButton proceedButton = new JButton("Proceed to Menu");
 
+
+    /*
+    Creates the introduction screen and loads the game instructions.
+    */
     public IntroductionPanel() {
         setLayout(new BorderLayout(10, 20));
 
@@ -25,21 +30,24 @@ public class IntroductionPanel extends JPanel {
             BorderFactory.createEmptyBorder(30, 40, 30, 40)
         );
 
+        // Create the introduction title.
         JLabel title = new JLabel("TRAILBLAZER", JLabel.CENTER);
         title.setFont(MenuStyle.pixelFont(24));
         title.setForeground(MenuStyle.gold);
         add(title, BorderLayout.NORTH);
 
+        // Set up the text area for the instructions.
         JTextArea textArea = new JTextArea();
         textArea.setEditable(false);
         textArea.setFont(MenuStyle.pixelFont(11));
         textArea.setBackground(MenuStyle.panel);
         textArea.setForeground(MenuStyle.text);
         textArea.setCaretColor(MenuStyle.text);
-        textArea.setMargin(new java.awt.Insets(25, 25, 25, 25));
+        textArea.setMargin(new Insets(25, 25, 25, 25));
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
 
+        // Read the instructions from the text file.
         try {
             BufferedReader reader = new BufferedReader(
                 new InputStreamReader(
@@ -59,6 +67,7 @@ public class IntroductionPanel extends JPanel {
             e.printStackTrace();
         }
 
+        // Add the text area and continue button to the screen.
         JScrollPane scrollPane = new JScrollPane(textArea);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         scrollPane.setWheelScrollingEnabled(false);
@@ -74,7 +83,7 @@ public class IntroductionPanel extends JPanel {
         MenuStyle.styleButton(proceedButton);
 
         proceedButton.setPreferredSize(
-            new java.awt.Dimension(0, 65)
+            new Dimension(0, 65)
         );
 
         add(proceedButton, BorderLayout.SOUTH);
